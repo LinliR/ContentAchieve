@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>01 · 自主访问控制（Discretionary Access Control / DAC） · 角色管理理论</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="topnav">
+        <a class="home-link" href="../index.html">← 目录</a>
+        <div class="chapter-nav"><a class="nav-prev" href="00-overview.html">← 上一章</a><a class="nav-next" href="02-mac.html">下一章 →</a></div>
+      </nav>
+      <article class="article prose">
+        <h1>01 · 自主访问控制（Discretionary Access Control / DAC）</h1>
+<h2>1. 学习目标</h2>
+<p>读完本章，你应能：</p>
+<ul>
+<li>用自己的话定义 DAC，并指出「自主」自主在谁  </li>
+<li>说明 DAC 与访问矩阵 / ACL / Capability 的关系  </li>
+<li>列举 DAC 的典型优势与「权限扩散」类局限  </li>
+<li>判断一个需求是不是「纯 DAC 思维」</li>
+</ul>
+<h2>2. 历史背景与发展</h2>
+<p>早期多用户操作系统（如 Unix 传统权限模型所体现的思想）需要回答：文件、进程等对象由谁控制访问。<br>一种自然答案是：<strong>对象有属主（owner），属主有权决定谁可以读/写/执行</strong>——这就是自主访问控制的直觉来源。</p>
+<p>在经典访问控制理论中，DAC 常与 <strong>访问矩阵（Access Matrix）</strong> 一起出现：行是主体，列是客体，单元格是允许的操作。矩阵在实现上过稀、过大，于是演化出两种常见实现视角：</p>
+<ul>
+<li>按列存储 → <strong>ACL</strong>（每个客体一份名单）  </li>
+<li>按行存储 → <strong>Capability</strong>（每个主体持有能力票证）</li>
+</ul>
+<p>因此：DAC 首先是<strong>策略思想</strong>（谁有权改授权），ACL/Capability 是常见<strong>实现形态</strong>。不要把「DAC」和「ACL」当成同一个词。</p>
+<p>DAC 要解决的是：<strong>灵活共享</strong>。<br>它很快暴露的问题是：<strong>授权可被属主（或被转授者）扩散出去，系统难以施加统一的全局安全策略</strong>——这直接推动了 MAC 的强化思路。</p>
+<h2>3. 核心理论</h2>
+<h3>3.1 基本定义</h3>
+<p><strong>DAC</strong>：客体的访问权限由该客体的属主（或属主委托的主体）<strong>自主决定</strong>；系统主要执行属主设定的规则，而不是用全局强制策略覆盖属主意愿。</p>
+<h3>3.2 核心概念</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>属主（Owner）</td>
+<td>对客体拥有支配性授权权的主体</td>
+</tr>
+<tr>
+<td>授权（Grant）</td>
+<td>属主把某操作授给其他主体</td>
+</tr>
+<tr>
+<td>转授（可能存在）</td>
+<td>被授权者是否还能继续授给别人（策略可禁止或允许）</td>
+</tr>
+<tr>
+<td>访问矩阵</td>
+<td>Subject × Object → Rights 的抽象模型</td>
+</tr>
+</tbody></table>
+<h3>3.3 判定如何发生</h3>
+<ol>
+<li>识别 Subject、Object、Action  </li>
+<li>查找该 Object 上由属主（或其授权链）设定的规则  </li>
+<li>若规则允许该 Subject 执行该 Action → 允许，否则拒绝</li>
+</ol>
+<p>环境属性、全局密级通常<strong>不是</strong> DAC 的一等公民（除非被实现额外叠加）。</p>
+<h3>3.4 最小例子</h3>
+<p>文档 D 的属主是 Alice。</p>
+<ul>
+<li>Alice 授予 Bob「读」→ Bob 可读 D  </li>
+<li>Alice 未授予 Carol → Carol 不能读 D  </li>
+<li>若允许转授，Bob 再授给 Carol「读」→ Carol 也能读（<strong>权限扩散</strong>开始出现）</li>
+</ul>
+<h2>4. 变体与扩展</h2>
+<ul>
+<li><strong>属主 + 属组 + 其他人</strong>（Unix <code>rwx</code> 思想）：粗粒度 DAC  </li>
+<li><strong>细粒度 ACL</strong>：每用户/每组一条 ACE（Access Control Entry）  </li>
+<li><strong>可转授 vs 不可转授</strong>：是否允许 grant-propagate  </li>
+<li>与审计、默认权限（umask 类思想）结合：仍属 DAC 家族的工程化</li>
+</ul>
+<h2>5. 优势</h2>
+<ul>
+<li><strong>符合人类直觉</strong>：谁创建谁管理，协作成本低  </li>
+<li><strong>灵活</strong>：临时分享、撤销（在属主控制下）自然  </li>
+<li><strong>实现路径成熟</strong>：操作系统与内容系统大量验证</li>
+</ul>
+<h2>6. 不足与局限</h2>
+<ol>
+<li><strong>权限扩散（Trojan / 转授风险）</strong>：恶意或疏忽可使权限流向不可控主体  </li>
+<li><strong>全局策略弱</strong>：难以强制「所有机密文件不得分享给外包」这类组织级规则  </li>
+<li><strong>审计与治理难</strong>：授权决策分散在无数属主手中  </li>
+<li><strong>不擅长岗位化管理</strong>：企业要的是「运营岗能做什么」，不是「每个文件找主人」  </li>
+<li><strong>客体海量时</strong>：纯属主模式运维负担高（常要引入管理员代管，反而靠近中心化）</li>
+</ol>
+<h2>7. 在演进链中的位置</h2>
+<ul>
+<li><strong>相对「无模型」</strong>：给出了可分析的授权主体（属主）  </li>
+<li><strong>留给 MAC 的缺口</strong>：缺强制、缺防扩散的系统级保证  </li>
+<li><strong>与后代</strong>：RBAC/ABAC 并不消灭 DAC；分享场景仍大量使用 DAC/ACL 思维</li>
+</ul>
+<h2>8. 适用与不适用</h2>
+<table>
+<thead>
+<tr>
+<th>更适用</th>
+<th>更不适用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>个人网盘、文档协作分享</td>
+<td>作为企业后台唯一权限模型</td>
+</tr>
+<tr>
+<td>属主清晰的对象级授权</td>
+<td>强合规、强防泄露、统一岗位授权</td>
+</tr>
+<tr>
+<td>OS / 文件系统经典场景</td>
+<td>需要「角色—权限」集中治理的 ERP</td>
+</tr>
+</tbody></table>
+<h2>9. 概念辨析</h2>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>辨析</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DAC vs ACL</td>
+<td>DAC 是策略类别；ACL 是（常用于实现 DAC 的）数据结构视角</td>
+</tr>
+<tr>
+<td>DAC vs RBAC</td>
+<td>DAC 问「主人给没给」；RBAC 问「你有没有这个角色」</td>
+</tr>
+<tr>
+<td>属主 vs 管理员</td>
+<td>管理员代管不等于变成 MAC；关键仍看「最终策略是否可由属主左右」</td>
+</tr>
+</tbody></table>
+<h2>10. 小结与自测</h2>
+<h3>小结</h3>
+<p>DAC 用「属主自主授权」换取灵活性，代价是扩散风险与弱全局治理。它是经典双雄之一，也是今日「分享」需求的理论祖先。</p>
+<h3>自测</h3>
+<ol>
+<li>为什么说 ACL 不等于 DAC？  </li>
+<li>举一个「权限扩散」的具体故事（三步即可）。  </li>
+<li>若公司要求「任何属主都不能把机密文档分享出公司」，这还是纯 DAC 吗？为什么？</li>
+</ol>
+<p><strong>要点</strong>：1）策略 vs 实现；2）A→B→C 转授；3）已出现强制约束，偏向 MAC 或策略覆盖。  </p>
+<h2>11. 延伸阅读</h2>
+<ul>
+<li>访问矩阵与 Harrison–Ruzzo–Ullman（HRU）等经典讨论：理解「授权系统可不可判定」的理论背景（了解即可）  </li>
+<li>操作系统教材中的保护机制章节：DAC/ACL/Capability 对照</li>
+</ul>
+<p>下一章：<a href="02-mac.html">02-mac.md</a></p>
+
+      </article>
+      <footer class="foot">
+        <p>源文件：<code>theory/models/01-dac.md</code> · 本页：<code>html/models/01-dac.html</code></p>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>02 · 模型演进：问题如何一步步变难 · 角色管理理论</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="topnav">
+        <a class="home-link" href="index.html">← 目录</a>
+        <div class="chapter-nav"><a class="nav-prev" href="01-problem-framework.html">← 上一章</a><a class="nav-next" href="03-models.html">下一章 →</a></div>
+      </nav>
+      <article class="article prose">
+        <h1>02 · 模型演进：问题如何一步步变难</h1>
+<blockquote>
+<p>读完 <a href="01-problem-framework.html">01-problem-framework.md</a> 再读本章。<br>各模型细节在 <a href="models/index.html">models/</a>；本章只建立<strong>演进叙事与选型透镜</strong>。</p>
+</blockquote>
+<h2>1. 学习目标</h2>
+<p>读完本章，你应能：</p>
+<ol>
+<li>默写主线 <code>DAC → MAC → RBAC → ABAC → UCON</code>，并说明每步「补了什么缺口」  </li>
+<li>解释：演进线是<strong>能力叙事</strong>，不是淘汰顺序，也不是实施顺序  </li>
+<li>指出 ACL、ReBAC、Capability 的旁支位置  </li>
+<li>用演进线判断一个需求大概停在哪一阶段（为决策章做准备）  </li>
+<li>区分「传统请求时访问控制」与 UCON「使用全过程」</li>
+</ol>
+<h2>2. 如何理解这条线</h2>
+<p>学术与教材常见写法：</p>
+<pre><code>DAC → MAC → RBAC → ABAC → UCON
+</code></pre>
+<p>正确理解：</p>
+<table>
+<thead>
+<tr>
+<th>是</th>
+<th>不是</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>问题变难后，理论补能力</td>
+<td>后面完全取代前面</td>
+</tr>
+<tr>
+<td>帮助判断需求天花板</td>
+<td>新项目必须从 UCON 做起</td>
+</tr>
+<tr>
+<td>解释「为什么会出现下一代」</td>
+<td>唯一存在的模型分类法</td>
+</tr>
+</tbody></table>
+<p><strong>并存是常态。</strong> 今日业务系统常见：RBAC 打底 + 属性规则 + 少量 ACL，并不「落后」。</p>
+<h2>3. 演进在补什么（主叙事）</h2>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>模型</th>
+<th>核心矛盾（要解决的）</th>
+<th>新问题（留给后代的）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>经典</td>
+<td><strong>DAC</strong></td>
+<td>要灵活分享，属主说了算</td>
+<td>权限扩散、弱全局治理</td>
+</tr>
+<tr>
+<td>经典</td>
+<td><strong>MAC</strong></td>
+<td>要强制防泄露，策略不可被属主推翻</td>
+<td>过刚，难贴业务岗位</td>
+</tr>
+<tr>
+<td>组织化</td>
+<td><strong>RBAC</strong></td>
+<td>要按岗位打包权限，人变岗变可治理</td>
+<td>静态；角色爆炸；难表达上下文</td>
+</tr>
+<tr>
+<td>动态细粒度</td>
+<td><strong>ABAC</strong></td>
+<td>要用属性+策略表达动态条件</td>
+<td>策略治理、可解释、测试成本</td>
+</tr>
+<tr>
+<td>使用全过程</td>
+<td><strong>UCON</strong></td>
+<td>要管使用中：义务、持续检查、属性可变</td>
+<td>概念重；完整工程落地少</td>
+</tr>
+</tbody></table>
+<h3>3.1 各阶段一句话</h3>
+<ul>
+<li><strong>DAC</strong>：主人说了算。  </li>
+<li><strong>MAC</strong>：系统按标签/策略强制说了算。  </li>
+<li><strong>RBAC</strong>：你是什么角色，就有什么权限包。  </li>
+<li><strong>ABAC</strong>：当下属性与策略是否满足。  </li>
+<li><strong>UCON</strong>：授权 + 义务 + 条件；可事前/事中；属性可变更。</li>
+</ul>
+<h3>3.2 缺口传递（建议默写）</h3>
+<pre><code>DAC 灵活
+  └─缺口→ 扩散与弱全局策略
+MAC 强制
+  └─缺口→ 过刚、不贴岗位
+RBAC 岗位化
+  └─缺口→ 静态、难上下文、难实例分享
+ABAC 动态细粒度
+  └─缺口→ 治理难；仍常偏「请求时」
+UCON 使用全过程
+  └─缺口→ 完整落地重；名词易被滥用
+</code></pre>
+<h2>4. 两条经典线，再汇入企业线</h2>
+<p>更细的图景（避免以为历史是单车道）：</p>
+<pre><code>安全经典线：  DAC ⇄ MAC
+企业管理线：       → RBAC →（常与 ABAC 混合）
+动态细粒度：            → ABAC / ReBAC
+使用全过程：                  → UCON
+对象级分享：     ACL（常作为 DAC 实现形态，也可挂在 RBAC 上）
+能力票证：       Capability（矩阵「行」视角，与 ACL「列」对称）
+</code></pre>
+<ul>
+<li><strong>DAC/MAC</strong>：先回答「灵活 vs 强制」的安全经典问题。  </li>
+<li><strong>RBAC</strong>：把重心拉到「组织与岗位」。  </li>
+<li><strong>ABAC/UCON</strong>：再拉到「动态条件」与「使用过程」。</li>
+</ul>
+<h2>5. 传统访问控制 vs UCON</h2>
+<pre><code>传统常见用法（DAC/MAC/RBAC/ABAC）：
+  请求到来 → 判定一次 → 允许则本次（或会话内）用到底
+
+UCON：
+  请求到来 → 判定（可含义务）
+           → 使用中可持续检查
+           → 条件/属性变化可中止
+           → 属性可在使用中被改写（如额度 -1）
+</code></pre>
+<p>因此：UCON 更像<strong>统一与扩展框架</strong>，不是「ABAC 换皮升级版」。<br>项目中：用 UCON 当<strong>检查清单</strong>（有没有义务？要不要 ongoing？），多数 CRUD 后台不必上 UCON 平台。</p>
+<h2>6. 旁支：为什么单列</h2>
+<table>
+<thead>
+<tr>
+<th>旁支</th>
+<th>判定看什么</th>
+<th>为何不塞进主线第 N 代</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>ACL</strong></td>
+<td>该客体允许谁做什么</td>
+<td>主要是访问矩阵的<strong>列式实现</strong>；常服务于 DAC，也服务实例分享</td>
+</tr>
+<tr>
+<td><strong>Capability</strong></td>
+<td>主体持有什么能力票</td>
+<td>矩阵的<strong>行式实现</strong>；与 ACL 对称</td>
+</tr>
+<tr>
+<td><strong>ReBAC</strong></td>
+<td>关系路径是否成立</td>
+<td>与 ABAC 同期偏应用的另一原语（关系图 vs 属性策略）</td>
+</tr>
+</tbody></table>
+<p><strong>选型含义：</strong> 看到「分享给某人」「项目成员可读子文档」，先想 ACL/ReBAC，不要硬说「所以我们要上 UCON」。</p>
+<h2>7. 用演进线做「需求定位」（练习透镜）</h2>
+<p>把业务信号映射到阶段（粗定位，细选型见第 05 章）：</p>
+<table>
+<thead>
+<tr>
+<th>业务信号</th>
+<th>粗定位</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>文件/文档由主人分享</td>
+<td>DAC / ACL</td>
+</tr>
+<tr>
+<td>密级、强制不能外传</td>
+<td>MAC 思想</td>
+</tr>
+<tr>
+<td>按岗位开菜单与按钮</td>
+<td>RBAC</td>
+</tr>
+<tr>
+<td>本部门/租户/工作日才能导出</td>
+<td>RBAC + ABAC 思想</td>
+</tr>
+<tr>
+<td>深层成员/父子继承可见性</td>
+<td>ReBAC（或复杂 ACL）</td>
+</tr>
+<tr>
+<td>播放中到期要停、同意后才能继续、额度用完断开</td>
+<td>UCON 思想</td>
+</tr>
+</tbody></table>
+<p><strong>练习：</strong> 华澄「澄单」案例（<a href="cases/m-tier-order-ops.html">cases/m-tier-order-ops.md</a>）应落在哪？<br>→ 主：RBAC；局部：ABAC 思想（部门范围）+ ACL（工单分享）；非 MAC/UCON 平台。</p>
+<h2>8. 对项目启动的三条纪律</h2>
+<ol>
+<li><strong>用演进线判断能力上限</strong>：需求是否超出纯 RBAC？是否触及持续使用？  </li>
+<li><strong>不用演进线当实施顺序</strong>：默认从 RBAC（或更简单）起步。  </li>
+<li><strong>并存合法</strong>：组合不是「不纯粹」，而是工程常态。</li>
+</ol>
+<p>错误示范：「最新是 UCON，所以我们要上 UCON。」<br>正确示范：「我们停在 RBAC+范围规则；出现 X 信号再评估 ABAC/UCON。」</p>
+<h2>9. 小结与自测</h2>
+<h3>小结</h3>
+<p>演进线描述「问题如何变难、理论如何补洞」。<br>主线五模型 + 旁支 ACL/ReBAC/Capability。<br>UCON 把视野从「进门」扩到「使用全过程」。<br>选型时用它做定位透镜，用第 05 章做可执行决策。</p>
+<h3>自测</h3>
+<ol>
+<li>用「缺口传递」从 DAC 讲到 UCON（口头 1 分钟）。  </li>
+<li>为什么说「并存是常态」？举一个组合例子。  </li>
+<li>ACL 为什么不是 DAC 的「下一代」？  </li>
+<li>「租户_id 过滤」是否等于已经做了 MAC？  </li>
+<li>给出一个需要 UCON <strong>思维</strong>、但不需要 UCON <strong>平台</strong>的例子。</li>
+</ol>
+<p><strong>要点：</strong> 2）如 RBAC+DEPT+ticket ACL；3）实现形态/旁支；4）否，缺强制标签体系；5）导出前同意勾选用产品流程即可。  </p>
+<h2>10. 延伸阅读与下一站</h2>
+<ul>
+<li>专章精读：<a href="models/index.html">models/README.md</a>（建议主线 01→05，旁支 06→07，收束 08）  </li>
+<li>入口速查：<a href="03-models.html">03-models.md</a>  </li>
+<li>读完模型后回来：<a href="04-considerations.html">04-considerations.md</a></li>
+</ul>
+<p><strong>建议学法：</strong> 本章读两遍——模型专章<strong>之前</strong>建立地图；专章<strong>之后</strong>再读一遍，缺口传递会「活」起来。</p>
+
+      </article>
+      <footer class="foot">
+        <p>源文件：<code>theory/02-model-evolution.md</code> · 本页：<code>html/02-model-evolution.html</code></p>
+      </footer>
+    </div>
+  </body>
+</html>

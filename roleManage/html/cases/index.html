@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>立项案例库 · 角色管理理论</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="topnav">
+        <a class="home-link" href="../index.html">← 目录</a>
+        
+      </nav>
+      <article class="article prose">
+        <h1>立项案例库</h1>
+<p>虚构但完整的理论立项范例，对应 <a href="../06-outputs.html">06-outputs.md</a> 的 O1–O9。<br>用作自学「标准答案」与评审对照。</p>
+<blockquote>
+<p><strong>纪律：先独立填写空白模板，再打开范例对照。</strong></p>
+</blockquote>
+<h2>案例索引</h2>
+<table>
+<thead>
+<tr>
+<th>档位</th>
+<th>案例</th>
+<th>场景摘要</th>
+<th>主模型组合</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>S</strong></td>
+<td><a href="s-tier-simple-admin.html">s-tier-simple-admin.md</a></td>
+<td>内部配置台，三角色</td>
+<td>纯 RBAC</td>
+</tr>
+<tr>
+<td><strong>M</strong></td>
+<td><a href="m-tier-order-ops.html">m-tier-order-ops.md</a></td>
+<td>制造企业订单与售后</td>
+<td>RBAC + 数据范围 + ticket ACL</td>
+</tr>
+<tr>
+<td><strong>M′</strong></td>
+<td><a href="m-content-ops-console.html">m-content-ops-console.md</a></td>
+<td>内容运营后台（无 ACL）</td>
+<td>RBAC + 数据范围</td>
+</tr>
+<tr>
+<td><strong>L</strong></td>
+<td><a href="l-tier-multitenant-collab.html">l-tier-multitenant-collab.md</a></td>
+<td>多租户文档协作</td>
+<td>RBAC + 租户边界 + ReBAC + 属性规则</td>
+</tr>
+</tbody></table>
+<p>建议阅读顺序：<strong>S → M′（无分享）→ M（有工单 ACL）→ L</strong>，体会「信号变强时模型如何加，而不是换时髦词」。</p>
+<h2>对照时看什么</h2>
+<ol>
+<li>O2 决策句式是否完整  </li>
+<li>O6 是否消除歧义（含下级？并集？分层？）  </li>
+<li>O7 不做项是否敢写死  </li>
+<li>O9 是否用「信号」触发升级，而非空话</li>
+</ol>
+<h2>相关</h2>
+<ul>
+<li>术语：<a href="../glossary.html">glossary.md</a>  </li>
+<li>学习路线：<a href="../CURRICULUM.html">CURRICULUM.md</a>  </li>
+<li>决策档位：<a href="../05-decision-framework.html">05-decision-framework.md</a></li>
+</ul>
+
+      </article>
+      <footer class="foot">
+        <p>源文件：<code>theory/cases/README.md</code> · 本页：<code>html/cases/index.html</code></p>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>术语表（Glossary） · 角色管理理论</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="topnav">
+        <a class="home-link" href="index.html">← 目录</a>
+        <div class="chapter-nav"><a class="nav-prev" href="CURRICULUM.html">← 上一章</a><a class="nav-next" href="01-problem-framework.html">下一章 →</a></div>
+      </nav>
+      <article class="article prose">
+        <h1>术语表（Glossary）</h1>
+<p>全书统一用语。按主题分组；英文缩写首次出现处给出全称。<br>与模型专章对照：<a href="models/index.html">models/README.md</a></p>
+<hr>
+<h2>A. 问题框架（四元组）</h2>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>英文</th>
+<th>定义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>主体</strong></td>
+<td>Subject</td>
+<td>发起访问请求的一方：人、服务账号、外部应用等</td>
+</tr>
+<tr>
+<td><strong>客体</strong></td>
+<td>Object</td>
+<td>被访问的目标：菜单、API、业务记录、文件等</td>
+</tr>
+<tr>
+<td><strong>操作</strong></td>
+<td>Action</td>
+<td>对客体执行的动作：查看、创建、修改、删除、导出、审批等</td>
+</tr>
+<tr>
+<td><strong>环境</strong></td>
+<td>Context / Environment</td>
+<td>访问发生时的上下文：时间、IP、租户、设备、风险分等</td>
+</tr>
+<tr>
+<td><strong>访问矩阵</strong></td>
+<td>Access Matrix</td>
+<td>抽象模型：行=主体，列=客体，单元格=允许的操作集合</td>
+</tr>
+<tr>
+<td><strong>授权</strong></td>
+<td>Authorization</td>
+<td>判定是否允许访问（区别于认证 Authentication）</td>
+</tr>
+<tr>
+<td><strong>认证</strong></td>
+<td>Authentication</td>
+<td>证明「你是谁」；授权是「你能做什么」</td>
+</tr>
+<tr>
+<td><strong>鉴权</strong></td>
+<td>—</td>
+<td>口语统称，常混指认证+授权；教材中尽量分开写</td>
+</tr>
+<tr>
+<td><strong>默认拒绝</strong></td>
+<td>Default Deny</td>
+<td>未显式允许则拒绝；最小权限原则的操作化</td>
+</tr>
+<tr>
+<td><strong>最小权限</strong></td>
+<td>Least Privilege</td>
+<td>只授予完成任务所必需的最小能力</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>B. 权限分层（全书纪律）</h2>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>定义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>功能权限</strong></td>
+<td>能否使用某能力：菜单、按钮、接口、操作码</td>
+</tr>
+<tr>
+<td><strong>数据权限</strong></td>
+<td>能作用到哪些数据行/实例：本人、本部门、租户、全量等</td>
+</tr>
+<tr>
+<td><strong>操作级粒度</strong></td>
+<td>权限切到「资源:操作」（如 <code>order:export</code>），推荐首期默认</td>
+</tr>
+<tr>
+<td><strong>字段级权限</strong></td>
+<td>同一记录上，不同字段可见/可改不同；成本高，慎选</td>
+</tr>
+<tr>
+<td><strong>对象级 / 实例级</strong></td>
+<td>针对单条业务记录或单个文件的授权（常走 ACL/ReBAC）</td>
+</tr>
+<tr>
+<td><strong>权限码</strong></td>
+<td>权限的稳定符号名，如 <code>order:view</code>；鉴权真源，非菜单 ID</td>
+</tr>
+<tr>
+<td><strong>数据范围</strong></td>
+<td>在已有功能权限下，进一步限制可见数据集合的规则语义</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>C. 访问控制模型（主线）</h2>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>英文</th>
+<th>一句话</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>DAC</strong></td>
+<td>Discretionary Access Control</td>
+<td>客体属主自主决定谁可访问</td>
+</tr>
+<tr>
+<td><strong>MAC</strong></td>
+<td>Mandatory Access Control</td>
+<td>系统按安全标签/策略强制判定，属主不能随意推翻</td>
+</tr>
+<tr>
+<td><strong>RBAC</strong></td>
+<td>Role-Based Access Control</td>
+<td>用户通过角色获得权限包</td>
+</tr>
+<tr>
+<td><strong>ABAC</strong></td>
+<td>Attribute-Based Access Control</td>
+<td>由主体/资源/操作/环境属性 + 策略动态判定</td>
+</tr>
+<tr>
+<td><strong>UCON</strong></td>
+<td>Usage Control</td>
+<td>使用控制：授权+义务+条件，可持续、属性可变</td>
+</tr>
+<tr>
+<td><strong>ACL</strong></td>
+<td>Access Control List</td>
+<td>客体上的「谁可做什么」名单（旁支）</td>
+</tr>
+<tr>
+<td><strong>ReBAC</strong></td>
+<td>Relationship-Based Access Control</td>
+<td>由关系图路径是否成立判定（旁支）</td>
+</tr>
+<tr>
+<td><strong>Capability</strong></td>
+<td>—</td>
+<td>主体持有的能力票证（访问矩阵「行」视角，常与 DAC 同论）</td>
+</tr>
+</tbody></table>
+<h3>UCON · ABC</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Authorization（A）</strong></td>
+<td>是否允许</td>
+</tr>
+<tr>
+<td><strong>oBligation（B）</strong></td>
+<td>必须履行的义务（同意、审计、通知等）</td>
+</tr>
+<tr>
+<td><strong>Condition（C）</strong></td>
+<td>环境须满足的条件</td>
+</tr>
+<tr>
+<td><strong>pre</strong></td>
+<td>使用开始前的判定</td>
+</tr>
+<tr>
+<td><strong>ongoing</strong></td>
+<td>使用过程中的持续判定</td>
+</tr>
+<tr>
+<td><strong>post</strong></td>
+<td>与使用后义务相关的判定</td>
+</tr>
+<tr>
+<td><strong>可变性</strong></td>
+<td>Mutability：属性可在使用中更新并影响后续判定</td>
+</tr>
+</tbody></table>
+<h3>MAC 相关</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>安全标签 / 密级</strong></td>
+<td>主体与客体上的安全等级或类别</td>
+</tr>
+<tr>
+<td><strong>MLS</strong></td>
+<td>Multi-Level Security，多级安全</td>
+</tr>
+<tr>
+<td><strong>不上读 / 不下写</strong></td>
+<td>经典机密性直觉：高密级不读低密级、高密级不写低密级（表述因模型而异）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>D. RBAC 专用</h2>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>英文</th>
+<th>定义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>用户</strong></td>
+<td>User</td>
+<td>被指派角色的主体</td>
+</tr>
+<tr>
+<td><strong>角色</strong></td>
+<td>Role</td>
+<td>权限的命名集合，对应职责/岗位</td>
+</tr>
+<tr>
+<td><strong>权限</strong></td>
+<td>Permission</td>
+<td>对客体执行某操作的许可</td>
+</tr>
+<tr>
+<td><strong>用户—角色指派</strong></td>
+<td>UA (User Assignment)</td>
+<td>用户与角色的绑定关系</td>
+</tr>
+<tr>
+<td><strong>角色—权限指派</strong></td>
+<td>PA (Permission Assignment)</td>
+<td>角色与权限的绑定关系</td>
+</tr>
+<tr>
+<td><strong>角色继承</strong></td>
+<td>Role Hierarchy</td>
+<td>子角色自动拥有父角色权限</td>
+</tr>
+<tr>
+<td><strong>会话 / 激活角色</strong></td>
+<td>Session / Active Roles</td>
+<td>用户登录后实际启用的角色子集（理论模型）</td>
+</tr>
+<tr>
+<td><strong>RBAC96</strong></td>
+<td>—</td>
+<td>Sandhu 等提出的 RBAC 模型家族，教材常用参照</td>
+</tr>
+<tr>
+<td><strong>角色爆炸</strong></td>
+<td>Role Explosion</td>
+<td>为覆盖组合条件而角色数量失控</td>
+</tr>
+<tr>
+<td><strong>职责分离</strong></td>
+<td>SoD, Separation of Duties</td>
+<td>互斥职责不得由同人承担（如制单与审核）</td>
+</tr>
+<tr>
+<td><strong>互斥角色</strong></td>
+<td>Mutually Exclusive Roles</td>
+<td>SoD 的一种：两角色不能同时赋给同一用户</td>
+</tr>
+<tr>
+<td><strong>基数约束</strong></td>
+<td>Cardinality Constraint</td>
+<td>如某角色最多 N 人、某用户最多 M 角色</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>E. ABAC 与策略</h2>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>定义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>属性</strong></td>
+<td>描述主体、资源、操作或环境的特征值</td>
+</tr>
+<tr>
+<td><strong>策略</strong></td>
+<td>Policy：规则集合，对属性求值得到 permit/deny</td>
+</tr>
+<tr>
+<td><strong>策略决策点</strong></td>
+<td>PDP</td>
+</tr>
+<tr>
+<td><strong>策略执行点</strong></td>
+<td>PEP</td>
+</tr>
+<tr>
+<td><strong>轻量属性规则</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>完整 ABAC / 策略引擎</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>PBAC</strong></td>
+<td>Policy-Based Access Control</td>
+</tr>
+<tr>
+<td><strong>XACML</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>拒绝原因可解释</strong></td>
+<td>—</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>F. ACL 与 ReBAC</h2>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>定义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>ACE</strong></td>
+<td>Access Control Entry：ACL 中的一条（主体+权限+允许/拒绝）</td>
+</tr>
+<tr>
+<td><strong>属主</strong></td>
+<td>Owner</td>
+</tr>
+<tr>
+<td><strong>转授</strong></td>
+<td>Delegation / Grant Propagation</td>
+</tr>
+<tr>
+<td><strong>权限扩散</strong></td>
+<td>Permission Propagation</td>
+</tr>
+<tr>
+<td><strong>关系元组</strong></td>
+<td>Relation Tuple</td>
+</tr>
+<tr>
+<td><strong>关系推导 / 可达</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Zanzibar</strong></td>
+<td>—</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>G. 组织与多租户</h2>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>定义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>租户</strong></td>
+<td>Tenant</td>
+</tr>
+<tr>
+<td><strong>部门</strong></td>
+<td>Department</td>
+</tr>
+<tr>
+<td><strong>用户组</strong></td>
+<td>Group</td>
+</tr>
+<tr>
+<td><strong>组织树</strong></td>
+<td>Org Tree</td>
+</tr>
+<tr>
+<td><strong>数据归属</strong></td>
+<td>Data Ownership</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>G2. 数据范围常用语义</h2>
+<table>
+<thead>
+<tr>
+<th>范围名</th>
+<th>语义（须在 O6 中写清细节）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>SELF</strong></td>
+<td>仅本人创建或负责的数据</td>
+</tr>
+<tr>
+<td><strong>DEPT</strong></td>
+<td>本部门；是否含下级部门须明确定义</td>
+</tr>
+<tr>
+<td><strong>DEPT_AND_CHILD</strong></td>
+<td>本部门及下级部门</td>
+</tr>
+<tr>
+<td><strong>TENANT</strong></td>
+<td>本租户内全部（多租户场景）</td>
+</tr>
+<tr>
+<td><strong>ALL</strong></td>
+<td>跨部门/系统全量；慎用，常仅管理员</td>
+</tr>
+<tr>
+<td><strong>CUSTOM</strong></td>
+<td>自定义规则（如指定项目列表）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>H. 治理与生命周期</h2>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>定义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>管理角色</strong></td>
+<td>Administrative Role</td>
+</tr>
+<tr>
+<td><strong>权限变更生效</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>审计</strong></td>
+<td>Audit</td>
+</tr>
+<tr>
+<td><strong>审批流</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>档位 S / M / L</strong></td>
+<td>—</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>I. 易混辨析（速查）</h2>
+<table>
+<thead>
+<tr>
+<th>易混对</th>
+<th>区分</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>认证 vs 授权</td>
+<td>身份 vs 能力</td>
+</tr>
+<tr>
+<td>角色 vs 部门</td>
+<td>权限包 vs 组织归属/数据范围</td>
+</tr>
+<tr>
+<td>角色 vs 用户组</td>
+<td>职责权限包 vs 人的集合</td>
+</tr>
+<tr>
+<td>权限码 vs 菜单</td>
+<td>鉴权真源 vs UI 展现</td>
+</tr>
+<tr>
+<td>DAC vs ACL</td>
+<td>策略类别 vs 常见数据结构</td>
+</tr>
+<tr>
+<td>RBAC vs ABAC</td>
+<td>静态角色绑定 vs 属性策略动态判定</td>
+</tr>
+<tr>
+<td>ABAC vs 代码 if</td>
+<td>可治理策略 vs 散落分支</td>
+</tr>
+<tr>
+<td>ACL vs ReBAC</td>
+<td>枚举谁 vs 关系推导谁</td>
+</tr>
+<tr>
+<td>ABAC vs UCON</td>
+<td>属性策略 vs 使用全过程（义务/持续/可变）</td>
+</tr>
+<tr>
+<td>租户隔离 vs MAC</td>
+<td>分区/属性条件 vs 强制密级标签体系</td>
+</tr>
+<tr>
+<td>演进线 vs 实施顺序</td>
+<td>能力叙事 vs 工程起步通常从 RBAC</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>J. 本仓库文档缩写</h2>
+<table>
+<thead>
+<tr>
+<th>缩写</th>
+<th>文档</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>O1–O9</td>
+<td><a href="06-outputs.html">06-outputs.md</a> 中的理论交付物编号</td>
+</tr>
+<tr>
+<td>考量 A–G</td>
+<td><a href="04-considerations.html">04-considerations.md</a> 中的考量分组</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>维护</h2>
+<p>新增全书级术语时同步更新本表；模型专章内首次出现的缩写可链到本表对应行。</p>
+
+      </article>
+      <footer class="foot">
+        <p>源文件：<code>theory/glossary.md</code> · 本页：<code>html/glossary.html</code></p>
+      </footer>
+    </div>
+  </body>
+</html>

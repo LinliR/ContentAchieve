@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>学习路线（Curriculum） · 角色管理理论</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="topnav">
+        <a class="home-link" href="index.html">← 目录</a>
+        <div class="chapter-nav"><a class="nav-next" href="glossary.html">下一章 →</a></div>
+      </nav>
+      <article class="article prose">
+        <h1>学习路线（Curriculum）</h1>
+<p>本文件告诉你：<strong>按什么顺序读、每站学什么、如何检验自己真的懂了</strong>。<br>目标不是「看过文档」，而是能独立完成一份理论立项（O1–O9）。</p>
+<p>直接按本目录 Markdown 阅读即可。</p>
+<hr>
+<h2>1. 全景地图</h2>
+<pre><code>第 0 周：词汇
+  glossary.md
+
+第 1 阶段：问题与演进（方法论上半）
+  01 问题框架 → 02 演进逻辑
+
+第 2 阶段：模型教材（理论核）
+  models/00 → 主线 01…05 → 旁支 06…07 → 08 对照
+
+第 3 阶段：立项方法（方法论下半）
+  04 考量 → 05 决策 → 06 输出
+
+第 4 阶段：对照练习
+  cases/（先自己填空白，再看范例）
+</code></pre>
+<p><code>03-models.md</code> 只是模型目录入口，不占用学时。</p>
+<hr>
+<h2>2. 推荐日程（可压缩可拉长）</h2>
+<table>
+<thead>
+<tr>
+<th>日序</th>
+<th>内容</th>
+<th>产出（强制）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>D1</td>
+<td><a href="glossary.html">glossary.md</a> 通读 + <a href="01-problem-framework.html">01</a></td>
+<td>自测 1–5；用四元组写 2 个真实场景</td>
+</tr>
+<tr>
+<td>D2</td>
+<td><a href="02-model-evolution.html">02</a></td>
+<td>默写缺口传递；标出旁支位置</td>
+</tr>
+<tr>
+<td>D3–D5</td>
+<td><a href="models/index.html">models/</a> DAC→RBAC</td>
+<td>每章自测；RBAC 章画用户-角色-权限图</td>
+</tr>
+<tr>
+<td>D6–D7</td>
+<td>ABAC、UCON + ACL、ReBAC</td>
+<td>对比表：ABAC vs ReBAC；UCON ABC 拆一个例子</td>
+</tr>
+<tr>
+<td>D8</td>
+<td><a href="models/08-comparison.html">models/08-comparison.md</a></td>
+<td>默写对照表 + 组合口诀</td>
+</tr>
+<tr>
+<td>D9</td>
+<td><a href="04-considerations.html">04</a> + <a href="05-decision-framework.html">05</a></td>
+<td>对虚构项目走完 Q1–Q4，选定 S/M/L</td>
+</tr>
+<tr>
+<td>D10</td>
+<td><a href="06-outputs.html">06</a> 空白填写</td>
+<td>独立完成 O1–O9（不看案例）</td>
+</tr>
+<tr>
+<td>D11</td>
+<td>对照 <a href="cases/index.html">cases/</a></td>
+<td>改自己的稿；记下 3 处差异与理由</td>
+</tr>
+</tbody></table>
+<p>可周末两天冲刺：D1–D2 + 只精读 RBAC/ABAC/08 + D9–D11。</p>
+<hr>
+<h2>3. 「我懂了」的验收标准</h2>
+<p>同时满足才算理论过关：</p>
+<ol>
+<li><strong>能讲</strong>：向非安全同事用 5 分钟讲清四元组、功能/数据分离、为何默认 RBAC  </li>
+<li><strong>能画</strong>：主线+旁支地图；RBAC 三元关系  </li>
+<li><strong>能选</strong>：给定一段业务描述，写出决策句式（见 05）  </li>
+<li><strong>能写</strong>：独立完成 O1–O9，且 O6 消除「部门是否含下级」等歧义  </li>
+<li><strong>能停</strong>：O7 明确不做项，O9 写清「什么信号才升级模型」</li>
+</ol>
+<p>对照：<a href="06-outputs.html">06-outputs.md</a> §验收标准。</p>
+<hr>
+<h2>4. 各章在理解链上的作用</h2>
+<table>
+<thead>
+<tr>
+<th>文档</th>
+<th>你获得的能力</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>01</td>
+<td>定义问题，不跑题</td>
+</tr>
+<tr>
+<td>02</td>
+<td>知道需求「难在哪一阶段」</td>
+</tr>
+<tr>
+<td>models/*</td>
+<td>知道每个工具的理论边界</td>
+</tr>
+<tr>
+<td>04</td>
+<td>知道立项要问全哪些题</td>
+</tr>
+<tr>
+<td>05</td>
+<td>知道怎么选组合与档位</td>
+</tr>
+<tr>
+<td>06</td>
+<td>知道理论阶段交什么、怎样算做完</td>
+</tr>
+<tr>
+<td>cases/*</td>
+<td>知道「写好」长什么样</td>
+</tr>
+<tr>
+<td>glossary</td>
+<td>避免用词漂移</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>5. 三条学习纪律</h2>
+<ol>
+<li><strong>先输出再对照案例</strong>——先看范例会变成抄写，检不出理解漏洞。  </li>
+<li><strong>模型章必须做自测</strong>——只读不练，演进出不了手感。  </li>
+<li><strong>理论与工程分册</strong>——本阶段禁止用「Spring 怎么配」代替模型理解。</li>
+</ol>
+<hr>
+<h2>6. 卡住时怎么跳</h2>
+<table>
+<thead>
+<tr>
+<th>症状</th>
+<th>回到</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>角色和部门分不清</td>
+<td>01 §5 + glossary「角色 vs 部门」</td>
+</tr>
+<tr>
+<td>不懂为何不要上 UCON</td>
+<td>02 §5 + models/05</td>
+</tr>
+<tr>
+<td>数据权限不知怎么写</td>
+<td>01 §4 + 04-B + M 档案例 O6</td>
+</tr>
+<tr>
+<td>决策树选不准档</td>
+<td>05 + 三个 cases 封面对比</td>
+</tr>
+</tbody></table>
+<hr>
+<p>下一动作：若尚未读 01，从 <a href="01-problem-framework.html">01-problem-framework.md</a> 开始。</p>
+
+      </article>
+      <footer class="foot">
+        <p>源文件：<code>theory/CURRICULUM.md</code> · 本页：<code>html/CURRICULUM.html</code></p>
+      </footer>
+    </div>
+  </body>
+</html>

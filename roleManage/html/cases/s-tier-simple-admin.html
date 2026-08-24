@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>案例 S · 内部「配置台」三角色后台 · 角色管理理论</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="topnav">
+        <a class="home-link" href="../index.html">← 目录</a>
+        <div class="chapter-nav"><a class="nav-prev" href="../06-outputs.html">← 上一章</a><a class="nav-next" href="m-content-ops-console.html">下一章 →</a></div>
+      </nav>
+      <article class="article prose">
+        <h1>案例 S · 内部「配置台」三角色后台</h1>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>档位</td>
+<td><strong>S · 简单后台</strong></td>
+</tr>
+<tr>
+<td>性质</td>
+<td>虚构教材范例</td>
+</tr>
+<tr>
+<td>对照</td>
+<td><a href="../06-outputs.html">06-outputs.md</a></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>0. 业务背景</h2>
+<p><strong>澄配（ChengConfig）</strong>：公司内部功能开关与字典配置后台。</p>
+<ul>
+<li>用户约 15 人：开发、运维、只读访客  </li>
+<li>无部门数据隔离需求；配置全局一份  </li>
+<li>无对象分享、无多租户、无密级  </li>
+<li>只要按岗位控制「谁能改配置 / 谁只能看」</li>
+</ul>
+<p><strong>决策树：</strong> Q1 岗位 → RBAC；Q2 无复杂属性 → 纯 RBAC；Q3 请求级；Q4 操作级 → <strong>档位 S</strong>。</p>
+<hr>
+<h2>O1 · 问题框架</h2>
+<ul>
+<li>Subject：内部员工（开发、运维、访客）  </li>
+<li>Object：以<strong>功能</strong>为主（配置项、字典、发布操作）  </li>
+<li>Action：view / update / publish / rollback  </li>
+<li>Context：无特殊环境约束（首期）  </li>
+<li>功能权限：要  </li>
+<li>数据权限：不要（全局配置，等价 ALL）</li>
+</ul>
+<h2>O2 · 模型选型</h2>
+<ul>
+<li>主模型：RBAC  </li>
+<li>旁支：无  </li>
+<li>档位：S  </li>
+<li>决策句式：</li>
+</ul>
+<blockquote>
+<p>本项目以 <strong>RBAC</strong> 为主模型；因岗位少且无数据隔离/分享，<strong>不补充</strong> ACL/ABAC；功能权限粒度到 <strong>操作级</strong>；数据权限采用 <strong>全局可见（无需范围模型）</strong>；首期明确不做 <strong>数据范围、ACL、字段级、UCON</strong>。对照演进线：停在 RBAC 核心能力即可。  </p>
+</blockquote>
+<h2>O3 · 关键考量结论（摘录）</h2>
+<table>
+<thead>
+<tr>
+<th>编号</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A1</td>
+<td>岗位清晰：开发/运维/访客</td>
+</tr>
+<tr>
+<td>B1</td>
+<td>操作级</td>
+</tr>
+<tr>
+<td>B2</td>
+<td>不需要数据权限</td>
+</tr>
+<tr>
+<td>C1</td>
+<td>纯 RBAC</td>
+</tr>
+<tr>
+<td>D3</td>
+<td>重新登录生效</td>
+</tr>
+<tr>
+<td>F</td>
+<td>见 O7</td>
+</tr>
+</tbody></table>
+<h2>O4 · 权限对象清单（逻辑）</h2>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th>操作</th>
+<th>权限码</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>config</td>
+<td>查看</td>
+<td>config:view</td>
+</tr>
+<tr>
+<td>config</td>
+<td>修改</td>
+<td>config:update</td>
+</tr>
+<tr>
+<td>config</td>
+<td>发布</td>
+<td>config:publish</td>
+</tr>
+<tr>
+<td>config</td>
+<td>回滚</td>
+<td>config:rollback</td>
+</tr>
+<tr>
+<td>dict</td>
+<td>查看</td>
+<td>dict:view</td>
+</tr>
+<tr>
+<td>dict</td>
+<td>修改</td>
+<td>dict:update</td>
+</tr>
+</tbody></table>
+<h2>O5 · 角色初稿</h2>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>职责</th>
+<th>权限包</th>
+<th>约束</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>viewer</td>
+<td>只读</td>
+<td>config:view, dict:view</td>
+<td>—</td>
+</tr>
+<tr>
+<td>developer</td>
+<td>修改配置与字典，不可发布</td>
+<td>viewer + config:update, dict:update</td>
+<td>不可 publish/rollback</td>
+</tr>
+<tr>
+<td>operator</td>
+<td>发布与回滚</td>
+<td>developer 全部 + publish/rollback</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<p>无互斥角色需求。无数据范围列。</p>
+<h2>O6 · 数据范围规则</h2>
+<p>不适用。所有角色对配置数据均为全局可见；靠功能权限区分能否改/发。</p>
+<h2>O7 · 首期做 / 不做</h2>
+<ul>
+<li>做：三角色 RBAC；操作级权限码；发布/回滚审计  </li>
+<li>不做：数据范围、ACL、字段级、ABAC 引擎、UCON、多租户</li>
+</ul>
+<h2>O8 · 风险与开放问题</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>影响</th>
+<th>计划何时定</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>是否要「按配置命名空间隔离」</td>
+<td>可能升到 M</td>
+<td>出现多产品线共用时评审</td>
+</tr>
+<tr>
+<td>是否引入服务账号自动发布</td>
+<td>Subject 扩展</td>
+<td>CI 对接时</td>
+</tr>
+</tbody></table>
+<h2>O9 · 演进预留</h2>
+<ul>
+<li>出现「按产品线/命名空间隔离可见配置」→ 评估升级 <strong>M（数据范围）</strong>  </li>
+<li>出现「单条配置分享给外部协作人」→ 评估 <strong>ACL</strong>  </li>
+<li>不因「想用新模型」升级</li>
+</ul>
+<h2>验收</h2>
+<p>O1–O3、O7 完整；O4/O5 初稿完整；无 O6 需求；句式可讲解 → <strong>理论阶段通过（S）</strong>。</p>
+
+      </article>
+      <footer class="foot">
+        <p>源文件：<code>theory/cases/s-tier-simple-admin.md</code> · 本页：<code>html/cases/s-tier-simple-admin.html</code></p>
+      </footer>
+    </div>
+  </body>
+</html>

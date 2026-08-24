@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>01 · 问题框架：权限在回答什么 · 角色管理理论</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="topnav">
+        <a class="home-link" href="index.html">← 目录</a>
+        <div class="chapter-nav"><a class="nav-prev" href="glossary.html">← 上一章</a><a class="nav-next" href="02-model-evolution.html">下一章 →</a></div>
+      </nav>
+      <article class="article prose">
+        <h1>01 · 问题框架：权限在回答什么</h1>
+<blockquote>
+<p>术语见 <a href="glossary.html">glossary.md</a>。本章是全书的地基：模型再多，都在回答同一类问题。</p>
+</blockquote>
+<h2>1. 学习目标</h2>
+<p>读完本章，你应能：</p>
+<ol>
+<li>用四元组写出任意一次权限判定句  </li>
+<li>区分<strong>功能权限</strong>与<strong>数据权限</strong>，并指出混用的典型后果  </li>
+<li>说明权限、角色、用户三者关系（概念层，不深入 RBAC96）  </li>
+<li>按粒度阶梯判断「首期做到哪一层」以及成本含义  </li>
+<li>区分认证与授权  </li>
+<li>在写方案前，用最小澄清清单自检是否「问题已定义清楚」</li>
+</ol>
+<h2>2. 为什么先有框架，再谈模型</h2>
+<p>很多人一上来问：「我们用 RBAC 还是 ABAC？」<br>更致命的问题往往是：<strong>还没说清楚系统要判定的是什么。</strong></p>
+<ul>
+<li>选错模型 → 可以换、可以组合  </li>
+<li><strong>答错问题</strong> → 表结构、角色、接口鉴权会整体歪掉，返工成本极高</li>
+</ul>
+<p>因此教材约定顺序：</p>
+<pre><code>问题框架（本章）→ 演进与模型 → 考量与决策 → 交付物 →（以后）工程实现
+</code></pre>
+<p><strong>经验法则：</strong> 答不清本章末尾的澄清清单，就不要进入框架选型与建表。</p>
+<h2>3. 四元组：一次判定的最小完整描述</h2>
+<h3>3.1 定义</h3>
+<p>任意一次授权判定，都可以写成：</p>
+<blockquote>
+<p><strong>Subject</strong> 对 <strong>Object</strong> 执行 <strong>Action</strong>，在 <strong>Context</strong> 下，是否允许？</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>含义</th>
+<th>典型例子</th>
+<th>易漏点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Subject（主体）</strong></td>
+<td>谁在请求</td>
+<td>员工、外包账号、服务账号、第三方应用</td>
+<td>只想到「人」，忘了系统集成账号</td>
+</tr>
+<tr>
+<td><strong>Object（客体）</strong></td>
+<td>碰的是什么</td>
+<td>菜单、API、某条订单、某文件</td>
+<td>混淆「功能」与「某一条业务数据」</td>
+</tr>
+<tr>
+<td><strong>Action（操作）</strong></td>
+<td>做什么</td>
+<td>view / create / export / approve</td>
+<td>把「能进页面」当成「能导出」</td>
+</tr>
+<tr>
+<td><strong>Context（环境）</strong></td>
+<td>在什么条件下</td>
+<td>租户、部门、时间、IP、设备</td>
+<td>首期常可简化，但要<strong>显式声明简化了什么</strong></td>
+</tr>
+</tbody></table>
+<p>四元组是<strong>问题描述语言</strong>，不是某个模型的私有概念。DAC/RBAC/ABAC/UCON 都在用不同方式填这四个槽。</p>
+<h3>3.2 最小例子（贯穿后文）</h3>
+<p>场景：销售张三，工作日，在公司内网，想导出「销售一部」的订单列表。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>取值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Subject</td>
+<td>用户张三（主部门=销售一部，角色含「销售」）</td>
+</tr>
+<tr>
+<td>Object</td>
+<td>订单集合 / 导出接口所代表的资源</td>
+</tr>
+<tr>
+<td>Action</td>
+<td>export</td>
+</tr>
+<tr>
+<td>Context</td>
+<td>工作日、内网；部门=销售一部</td>
+</tr>
+</tbody></table>
+<p>后续章节会问：  </p>
+<ul>
+<li>有没有 <code>order:export</code> 这类<strong>功能权限</strong>？  </li>
+<li>即使有，数据是否只应落在<strong>本部门</strong>（数据权限）？  </li>
+<li>若还要求「导出前勾选同意」或「会话中可吊销」，则触及 UCON 思维。</li>
+</ul>
+<h3>3.3 判定在系统中的位置（概念）</h3>
+<pre><code>认证（你是谁）→ 得到 Subject
+     ↓
+收集 Object + Action + Context
+     ↓
+授权判定（是否允许）→ 允许 / 拒绝
+     ↓
+（可选）审计：记下这次判定与操作
+</code></pre>
+<p>本章聚焦<strong>授权</strong>；认证只要求你分得清边界（见 §7）。</p>
+<h2>4. 必须拆开的两层：功能权限 vs 数据权限</h2>
+<h3>4.1 定义</h3>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>问题</th>
+<th>例子</th>
+<th>常见建模</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>功能权限</strong></td>
+<td>能不能用这个能力</td>
+<td>是否显示「导出」；能否调用导出 API</td>
+<td>权限码 + 角色（RBAC）</td>
+</tr>
+<tr>
+<td><strong>数据权限</strong></td>
+<td>能作用到哪些数据</td>
+<td>仅本人 / 本部门 / 本租户 / 全量</td>
+<td>范围规则（轻量 ABAC）或查询过滤</td>
+</tr>
+</tbody></table>
+<p>两层同时为真，请求才真正「做成」：</p>
+<pre><code>允许 = 具备功能权限 ∧ 数据落在允许范围内
+（对象分享场景还可能：∨ ACL/关系授予）
+</code></pre>
+<h3>4.2 为什么必须拆开</h3>
+<p><strong>反例：把数据范围写进角色名</strong></p>
+<ul>
+<li><code>销售_华东_可导出</code>  </li>
+<li><code>销售_华北_可导出</code>  </li>
+<li><code>销售_华东_仅本人_可导出</code><br>→ 部门 × 范围 × 操作 组合爆炸 = <strong>角色爆炸</strong>。</li>
+</ul>
+<p><strong>正例：拆开</strong></p>
+<ul>
+<li>角色「销售」拥有 <code>order:export</code>（功能）  </li>
+<li>张三的数据范围 = <code>DEPT</code>（数据）<br>→ 人换部门只改归属/范围，不必新建角色。</li>
+</ul>
+<h3>4.3 概念辨析</h3>
+<table>
+<thead>
+<tr>
+<th>说法</th>
+<th>对吗</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>「给销售角色」</td>
+<td>通常指功能权限包</td>
+<td>完整说法还应问数据范围</td>
+</tr>
+<tr>
+<td>「本部门可见」</td>
+<td>数据权限</td>
+<td>单独成立时仍要有 view 功能权</td>
+</tr>
+<tr>
+<td>「菜单能看见就能导出」</td>
+<td>危险</td>
+<td>菜单是展现，导出是另一操作</td>
+</tr>
+</tbody></table>
+<h2>5. 权限、角色、用户（概念预告）</h2>
+<p>详细理论见 <a href="models/03-rbac.html">models/03-rbac.md</a>。此处只建立词汇，避免后文失语。</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>定义</th>
+<th>比喻</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>权限（Permission）</strong></td>
+<td>原子能力，常写成 <code>资源:操作</code></td>
+<td>一把钥匙能开的锁</td>
+</tr>
+<tr>
+<td><strong>角色（Role）</strong></td>
+<td>权限的打包，对应职责</td>
+<td>钥匙串 / 岗位工具箱</td>
+</tr>
+<tr>
+<td><strong>用户（User）</strong></td>
+<td>被指派角色的主体</td>
+<td>拿着钥匙串的人</td>
+</tr>
+</tbody></table>
+<pre><code>用户 ──绑定──► 角色 ──拥有──► 权限
+</code></pre>
+<p><strong>纪律（后面反复出现）：</strong></p>
+<ul>
+<li>角色是<strong>权限包</strong>，不是部门别名  </li>
+<li>部门/租户优先描述<strong>数据范围</strong>  </li>
+<li>主路径应是「人绑角色」，而不是「人直接绑大量权限」</li>
+</ul>
+<h2>6. 粒度阶梯与成本</h2>
+<h3>6.1 阶梯</h3>
+<pre><code>模块 → 功能/菜单 → 操作(CRUD/导出/审批) → 字段 → 行/对象实例
+         ▲                    ▲
+    过粗，难控              首期推荐停靠点
+                                              ▲
+                                    更细 → 更靠近 ABAC / ACL / ReBAC
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>粒度</th>
+<th>含义</th>
+<th>成本直觉</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>模块</td>
+<td>「能进订单模块」</td>
+<td>便宜，但过粗</td>
+</tr>
+<tr>
+<td>操作</td>
+<td><code>order:view</code> / <code>order:export</code></td>
+<td><strong>推荐默认</strong></td>
+</tr>
+<tr>
+<td>字段</td>
+<td>能看金额不能看手机号</td>
+<td>高：规则与测试暴涨</td>
+</tr>
+<tr>
+<td>行/实例</td>
+<td>这一单能否给张三看</td>
+<td>高：常要 ACL/ReBAC 或强过滤</td>
+</tr>
+</tbody></table>
+<h3>6.2 启动建议</h3>
+<ol>
+<li>功能权限先定到<strong>操作级</strong>  </li>
+<li>数据用<strong>范围规则</strong>（SELF/DEPT/…），不要为每行建角色  </li>
+<li>字段级、任意对象 ACL：<strong>首期默认不做</strong>，除非有硬需求并写入「做」的清单</li>
+</ol>
+<h2>7. 认证 ≠ 授权</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>认证 Authentication</th>
+<th>授权 Authorization</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>问</td>
+<td>你是谁？</td>
+<td>你能做什么？</td>
+</tr>
+<tr>
+<td>失败表现</td>
+<td>未登录、Token 无效</td>
+<td>已登录但 403 / 无按钮</td>
+</tr>
+<tr>
+<td>常见手段</td>
+<td>密码、SSO、JWT 签发</td>
+<td>角色、策略、ACL…</td>
+</tr>
+</tbody></table>
+<p>登录成功<strong>只说明 Subject 已知</strong>，不说明拥有任何业务权限。<br>教材后文默认：Subject 已认证，讨论授权模型。</p>
+<h2>8. 启动时最小澄清清单</h2>
+<p>写权限方案前，至少书面回答：</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>问题</th>
+<th>答不清时的典型后果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Subject 有哪些类型？（人 / 服务 / 外部系统）</td>
+<td>上线后对接账号「临时开上帝权限」</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Object 以功能为主，还是也有实例分享？</td>
+<td>用角色硬撑分享，或用 ACL 硬撑岗位</td>
+</tr>
+<tr>
+<td>3</td>
+<td>是否有多租户 / 组织树 / 数据归属？</td>
+<td>数据权限事后打补丁，接口到处 if</td>
+</tr>
+<tr>
+<td>4</td>
+<td>只要请求时判定，还是使用过程仍要管？</td>
+<td>漏掉吊销、配额、同意等需求</td>
+</tr>
+<tr>
+<td>5</td>
+<td>首期明确<strong>不做</strong>到哪一层粒度？</td>
+<td>范围蔓延，永远「再加一点」</td>
+</tr>
+</tbody></table>
+<p>答不清 → <strong>停</strong>。先找业务把问题定义清楚，再进 <a href="02-model-evolution.html">02-model-evolution.md</a>。</p>
+<h2>9. 与后文的桥接</h2>
+<table>
+<thead>
+<tr>
+<th>你已有的问题</th>
+<th>下一站</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>历史上人们怎么回答这类问题？</td>
+<td><a href="02-model-evolution.html">02-model-evolution.md</a></td>
+</tr>
+<tr>
+<td>每个模型具体理论？</td>
+<td><a href="models/index.html">models/</a></td>
+</tr>
+<tr>
+<td>立项要问哪些题？</td>
+<td><a href="04-considerations.html">04-considerations.md</a></td>
+</tr>
+<tr>
+<td>怎么选组合？</td>
+<td><a href="05-decision-framework.html">05-decision-framework.md</a></td>
+</tr>
+<tr>
+<td>理论阶段交什么？</td>
+<td><a href="06-outputs.html">06-outputs.md</a></td>
+</tr>
+<tr>
+<td>填好的样子长什么样？</td>
+<td><a href="cases/index.html">cases/</a></td>
+</tr>
+</tbody></table>
+<h2>10. 小结与自测</h2>
+<h3>小结</h3>
+<ul>
+<li>权限问题的标准句式是四元组判定句。  </li>
+<li>功能权限与数据权限必须分开建模。  </li>
+<li>角色打包权限；部门/租户管范围。  </li>
+<li>粒度默认停在操作级；更细要付治理成本。  </li>
+<li>认证解决身份，授权解决能力。  </li>
+<li>问题没定义清，不要选型。</li>
+</ul>
+<h3>自测</h3>
+<ol>
+<li>用四元组描述：「客服李四查看工单 T-99」。缺了哪一维时最容易设计出漏洞？  </li>
+<li>「运营_华南_可导出」这种角色名坏在哪里？如何拆成功能 + 数据？  </li>
+<li>用户能打开订单列表页，是否等于能调用导出接口？为什么？  </li>
+<li>认证成功但导出返回 403，问题出在哪一层？  </li>
+<li>写出你当前（或虚构）项目的澄清清单五问答案（可简答）。</li>
+</ol>
+<p><strong>要点：</strong> 1）Context/数据归属常被漏；2）范围塞进角色名 → 爆炸；3）菜单 ≠ 操作权；4）授权；5）主观题，对照 §8。  </p>
+<h2>11. 延伸阅读</h2>
+<ul>
+<li>本仓库 <a href="glossary.html">glossary.md</a> 中「问题框架」「权限分层」两节  </li>
+<li>任意安全教材中 Access Control 开篇：Subject / Object / Right</li>
+</ul>
+<p>下一章：<a href="02-model-evolution.html">02-model-evolution.md</a></p>
+
+      </article>
+      <footer class="foot">
+        <p>源文件：<code>theory/01-problem-framework.md</code> · 本页：<code>html/01-problem-framework.html</code></p>
+      </footer>
+    </div>
+  </body>
+</html>

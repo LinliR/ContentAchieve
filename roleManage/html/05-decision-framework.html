@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>05 · 决策框架：如何选出模型组合 · 角色管理理论</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="topnav">
+        <a class="home-link" href="index.html">← 目录</a>
+        <div class="chapter-nav"><a class="nav-prev" href="04-considerations.html">← 上一章</a><a class="nav-next" href="06-outputs.html">下一章 →</a></div>
+      </nav>
+      <article class="article prose">
+        <h1>05 · 决策框架：如何选出模型组合</h1>
+<blockquote>
+<p>前置：01、02、models（至少 RBAC/ABAC/08）、04。<br>本章输出进入 O2 决策句式与档位；填空见 <a href="06-outputs.html">06</a>。</p>
+</blockquote>
+<h2>1. 学习目标</h2>
+<p>读完本章，你应能：</p>
+<ol>
+<li>按 Q1→Q4 顺序决策，而不是凭「感觉选高级模型」  </li>
+<li>在 S / M / L 三档中定位项目并说明理由  </li>
+<li>写出完整<strong>决策句式</strong>（可给业务方听懂）  </li>
+<li>用反例识别「跳步选型」</li>
+</ol>
+<h2>2. 决策在理解链上的位置</h2>
+<pre><code>问题已定义（01）
+  → 需求落在演进哪一段（02）
+  → 模型能力已懂（models）
+  → 项目约束已问清（04）
+  → 本决策章：选出组合与档位
+  → 06：写成交付物
+</code></pre>
+<p>决策不是投票「哪个模型更酷」，而是：<strong>用最小足够的模型组合，覆盖已澄清的约束。</strong></p>
+<h2>3. 决策树（必须按序）</h2>
+<h3>Q1. 主要是岗位能力，还是对象归属 / 分享？</h3>
+<table>
+<thead>
+<tr>
+<th>信号</th>
+<th>倾向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>后台、ERP、运营、内部工具，按岗授权</td>
+<td><strong>RBAC</strong> 为主</td>
+</tr>
+<tr>
+<td>大量「把某资源分享给某人/某组」</td>
+<td><strong>RBAC + ACL</strong>（或嵌套深则 <strong>ReBAC</strong>）</td>
+</tr>
+<tr>
+<td>密级强制隔离是硬需求</td>
+<td>引入 <strong>MAC</strong> 思想（标签 + 强制策略）</td>
+</tr>
+</tbody></table>
+<p><strong>理解：</strong> Q1 决定「主叙事」是岗位还是对象。多数企业内部系统答案是岗位 → RBAC。</p>
+<h3>Q2. 权限是否强烈依赖属性 / 环境？</h3>
+<table>
+<thead>
+<tr>
+<th>信号</th>
+<th>倾向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>几种固定岗位即可</td>
+<td><strong>纯 RBAC</strong>（偏 S）</td>
+</tr>
+<tr>
+<td>本部门 / 本人 / 租户隔离 / 简单时间窗</td>
+<td><strong>RBAC + 数据范围规则</strong>（轻量 ABAC，偏 M）</td>
+</tr>
+<tr>
+<td>规则极多、跨服务统一、需策略外置与可测</td>
+<td><strong>完整 ABAC / 策略引擎</strong>（偏 L，贵）</td>
+</tr>
+</tbody></table>
+<p><strong>理解：</strong> 「本部门」不等于必须上策略引擎；轻量规则通常够用。</p>
+<h3>Q3. 只要「进门判定」，还是「使用过程仍要管」？</h3>
+<table>
+<thead>
+<tr>
+<th>信号</th>
+<th>倾向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>请求级鉴权即可</td>
+<td>传统访问控制足够</td>
+</tr>
+<tr>
+<td>会话中吊销、额度用完断开、必须先尽义务且可中止</td>
+<td>引入 <strong>UCON</strong> 思维（局部机制或平台）</td>
+</tr>
+</tbody></table>
+<p><strong>理解：</strong> 导出前弹窗同意，常常是产品流程，不必宣称「我们做了 UCON」。</p>
+<h3>Q4. 粒度停在哪？</h3>
+<pre><code>模块 → 菜单/功能 → 操作 → 字段 → 行/对象
+                       ▲ 首期默认
+</code></pre>
+<p>更细必须有业务驱动 + 治理预算。Q4 的答案直接写入 O7。</p>
+<h2>4. 三档位精讲</h2>
+<h3>档位 S · 简单后台</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>画像</td>
+<td>岗位少（≤5）、无复杂部门隔离、无对象分享</td>
+</tr>
+<tr>
+<td>模型</td>
+<td><strong>纯 RBAC</strong></td>
+</tr>
+<tr>
+<td>功能</td>
+<td>操作级权限码</td>
+</tr>
+<tr>
+<td>数据</td>
+<td>全量 <strong>或</strong> 仅 SELF，二选一</td>
+</tr>
+<tr>
+<td>不做</td>
+<td>ACL、字段级、完整 ABAC、UCON</td>
+</tr>
+<tr>
+<td>风险</td>
+<td>日后突然要「本部门」→ 升级 M，需改 O6</td>
+</tr>
+</tbody></table>
+<p><strong>范例方向：</strong> 见 <a href="cases/s-tier-simple-admin.html">cases/s-tier-simple-admin.md</a></p>
+<h3>档位 M · 标准企业应用（最常见）</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>画像</td>
+<td>清晰岗位 + 部门/本人范围；偶发实例分享</td>
+</tr>
+<tr>
+<td>模型</td>
+<td><strong>RBAC + 数据范围规则</strong>；必要时 <strong>白名单 ACL</strong></td>
+</tr>
+<tr>
+<td>功能</td>
+<td>角色可配置权限码</td>
+</tr>
+<tr>
+<td>数据</td>
+<td>SELF / DEPT / DEPT_AND_CHILD / ALL 等，语义写死</td>
+</tr>
+<tr>
+<td>不做</td>
+<td>完整策略引擎、ongoing UCON、全站 ACL 化</td>
+</tr>
+<tr>
+<td>范例</td>
+<td><a href="cases/m-tier-order-ops.html">cases/m-tier-order-ops.md</a></td>
+</tr>
+</tbody></table>
+<h3>档位 L · 复杂协作 / 多租户平台</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>画像</td>
+<td>多租户硬隔离、复杂属性条件、深层协作关系</td>
+</tr>
+<tr>
+<td>模型</td>
+<td><strong>RBAC + ABAC（或强规则）+（可选）ReBAC/ACL</strong></td>
+</tr>
+<tr>
+<td>治理</td>
+<td>策略测试、拒绝原因、属性源质量必须有人负责</td>
+</tr>
+<tr>
+<td>按需</td>
+<td>UCON（计量、吊销、义务）</td>
+</tr>
+<tr>
+<td>范例</td>
+<td><a href="cases/l-tier-multitenant-collab.html">cases/l-tier-multitenant-collab.md</a></td>
+</tr>
+</tbody></table>
+<p><strong>升级纪律：</strong> S→M→L 只能因<strong>信号</strong>升级（写入 O9），不能因「想做强」升级。</p>
+<h2>5. 决策句式（必须会写）</h2>
+<p>模板：</p>
+<blockquote>
+<p>本项目以 <strong>___</strong> 为主模型；<br>因 <strong>___</strong>（业务信号），补充 <strong>___</strong>；<br>功能权限粒度到 <strong>___</strong>；数据权限采用 <strong>___</strong>；<br>首期明确不做 <strong>___</strong>。<br>对照演进线：……  </p>
+</blockquote>
+<p>示例（M）：</p>
+<blockquote>
+<p>本项目以 <strong>RBAC</strong> 为主模型；<br>因存在部门数据隔离，补充 <strong>本部门/本人范围规则（轻量 ABAC）</strong>；<br>因个别工单需临时协作，补充 <strong>ticket 对象级 ACL</strong>；<br>功能权限粒度到 <strong>操作级</strong>；数据权限采用 <strong>SELF/DEPT/DEPT_AND_CHILD/ALL</strong>；<br>首期明确不做 <strong>字段级、完整 ABAC 引擎、UCON ongoing</strong>。<br>对照演进线：需求主要落在 RBAC，局部触及 ABAC 思想与 ACL 旁支。  </p>
+</blockquote>
+<h2>6. 跳步选型反例</h2>
+<table>
+<thead>
+<tr>
+<th>错误</th>
+<th>为何错</th>
+<th>应如何</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>先定「上 ABAC 引擎」再补需求</td>
+<td>倒置</td>
+<td>先 Q1–Q4 与 04 清单</td>
+</tr>
+<tr>
+<td>有分享就上 ReBAC</td>
+<td>可能过度</td>
+<td>对象少、无深层继承 → ACL 往往够</td>
+</tr>
+<tr>
+<td>有租户字段就自称 MAC</td>
+<td>概念错</td>
+<td>租户隔离 ≠ 密级强制</td>
+</tr>
+<tr>
+<td>最新模型 = 更好</td>
+<td>错</td>
+<td>匹配问题与治理能力</td>
+</tr>
+</tbody></table>
+<h2>7. 小结与自测</h2>
+<h3>小结</h3>
+<p>按 Q1–Q4 决策 → 落入 S/M/L → 写决策句式 → 进 06 填交付物。<br>最小足够原则：能静态不动态，能规则不引擎，能 ACL 不先上 ReBAC。</p>
+<h3>自测</h3>
+<ol>
+<li>只存在「管理员 / 普通用户」、数据全可见：档位？句式？  </li>
+<li>岗位清晰 + 本部门 + 无分享：为何是 M 不是 L？  </li>
+<li>Q3 答「要会话中吊销」但 Q1/Q2 仍很简单：模型组合怎么写才不夸张？  </li>
+<li>不看案例，用四句话描述 S/M/L 差异。</li>
+</ol>
+<p>下一章：<a href="06-outputs.html">06-outputs.md</a></p>
+
+      </article>
+      <footer class="foot">
+        <p>源文件：<code>theory/05-decision-framework.md</code> · 本页：<code>html/05-decision-framework.html</code></p>
+      </footer>
+    </div>
+  </body>
+</html>

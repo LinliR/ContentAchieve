@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>06 · 访问控制列表（Access Control List / ACL）〔旁支〕 · 角色管理理论</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="topnav">
+        <a class="home-link" href="../index.html">← 目录</a>
+        <div class="chapter-nav"><a class="nav-prev" href="05-ucon.html">← 上一章</a><a class="nav-next" href="07-rebac.html">下一章 →</a></div>
+      </nav>
+      <article class="article prose">
+        <h1>06 · 访问控制列表（Access Control List / ACL）〔旁支〕</h1>
+<h2>1. 学习目标</h2>
+<p>读完本章，你应能：</p>
+<ul>
+<li>说明 ACL 是什么，以及它与 DAC、访问矩阵的关系  </li>
+<li>描述 ACE（条目）的一般形态  </li>
+<li>指出 ACL 在对象级分享上的优势与规模化时的不足  </li>
+<li>说明为何工程上常「RBAC + 少量 ACL」</li>
+</ul>
+<h2>2. 历史背景与发展</h2>
+<p>在访问矩阵中，若<strong>按客体列存储</strong>授权，就得到 ACL：每个客体挂一张「谁可以做什么」的列表。<br>操作系统、文件系统、协作文档产品大量采用这一形态，以致口语里常把 ACL 直接叫「权限」。</p>
+<p>ACL 本身首先是<strong>实现与数据结构视角</strong>，策略上常服务于 <strong>DAC</strong>（属主维护列表），也可以由管理员中心化维护（此时「自主」色彩变弱）。<br>在 RBAC 成为企业功能权限主流后，ACL 并未消失，而是退守到<strong>实例级授权</strong>战场。</p>
+<h2>3. 核心理论</h2>
+<h3>3.1 基本定义</h3>
+<p><strong>ACL</strong>：与某客体关联的授权条目列表；每条通常指定主体（或主体组）及允许/拒绝的操作。</p>
+<h3>3.2 核心概念</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ACL</td>
+<td>客体上的列表</td>
+</tr>
+<tr>
+<td>ACE</td>
+<td>列表中的一条：主体 + 权限 + 允许/拒绝 等</td>
+</tr>
+<tr>
+<td>默认/继承</td>
+<td>子对象从父容器继承 ACL（文件系统、网盘常见）</td>
+</tr>
+<tr>
+<td>显式拒绝</td>
+<td>部分系统支持 deny 条目及优先级规则</td>
+</tr>
+</tbody></table>
+<h3>3.3 判定如何发生</h3>
+<ol>
+<li>定位 Object 的 ACL（及继承合并结果）  </li>
+<li>按系统规则匹配 Subject 与 Action（顺序、deny 优先等）  </li>
+<li>得到允许或拒绝</li>
+</ol>
+<h3>3.4 最小例子</h3>
+<p>文档 Doc#42 的 ACL：</p>
+<table>
+<thead>
+<tr>
+<th>主体</th>
+<th>权限</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Alice</td>
+<td>读、写</td>
+</tr>
+<tr>
+<td>组:运营</td>
+<td>读</td>
+</tr>
+<tr>
+<td>Bob</td>
+<td>读</td>
+</tr>
+</tbody></table>
+<p>Carol 不在列表中 → 不能访问（假设默认拒绝）。</p>
+<h2>4. 变体与扩展</h2>
+<ul>
+<li><strong>POSIX ACL / NTFS ACL</strong> 等：组、继承、特殊位  </li>
+<li><strong>分享链接</strong>：可视为对「持有链接者」的特殊主体  </li>
+<li><strong>与 RBAC 叠加</strong>：先过功能角色，再过对象 ACL  </li>
+<li><strong>ACL + 过期时间</strong>：条目带 TTL，接近条件化</li>
+</ul>
+<h2>5. 优势</h2>
+<ul>
+<li><strong>对象级直观</strong>：很适合「这篇文档给谁看」  </li>
+<li><strong>局部变更便宜</strong>：改一个对象的列表即可  </li>
+<li><strong>用户可理解</strong>：协作产品中的分享 UI 几乎就是 ACL 编辑器</li>
+</ul>
+<h2>6. 不足与局限</h2>
+<ol>
+<li><strong>规模化差</strong>：海量对象 × 长列表 → 存储与查询压力  </li>
+<li><strong>主体变更痛苦</strong>：人换岗/离职需扫过大量 ACL（或依赖组间接层）  </li>
+<li><strong>全局策略弱</strong>：与纯 DAC 类似的治理问题  </li>
+<li><strong>与岗位权限重复建模</strong>：用 ACL 表达「所有订单的导出权」是错误层级  </li>
+<li><strong>继承与冲突规则复杂</strong>：管理员难推理最终有效权限</li>
+</ol>
+<h2>7. 在演进链中的位置</h2>
+<ul>
+<li><strong>不是</strong> DAC→MAC→… 的下一站，而是矩阵的列式实现 / 对象侧工具  </li>
+<li><strong>服务 DAC</strong> 为主，也可被中心策略驱动  </li>
+<li><strong>与 RBAC</strong>：功能用 RBAC，实例分享用 ACL，是稳定分工</li>
+</ul>
+<h2>8. 适用与不适用</h2>
+<table>
+<thead>
+<tr>
+<th>更适用</th>
+<th>更不适用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>文档、工单、单个资源的分享</td>
+<td>全站功能权限的主模型</td>
+</tr>
+<tr>
+<td>对象数量可控或有继承结构</td>
+<td>每条业务行都挂长 ACL</td>
+</tr>
+<tr>
+<td>需要属主或协作者可见的授权 UI</td>
+<td>以岗位职责为中心的 ERP 权限</td>
+</tr>
+</tbody></table>
+<h2>9. 概念辨析</h2>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>辨析</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ACL vs RBAC</td>
+<td>客体名单 vs 角色权限包；问题层级不同</td>
+</tr>
+<tr>
+<td>ACL vs ABAC</td>
+<td>ACL 枚举主体；ABAC 用属性规则概括主体集合</td>
+</tr>
+<tr>
+<td>组 ACL vs 角色</td>
+<td>组进 ACL 仍是对象级授权；角色通常是全局功能授权</td>
+</tr>
+</tbody></table>
+<h2>10. 小结与自测</h2>
+<h3>小结</h3>
+<p>ACL 从访问矩阵的列存储而来，擅长对象级授权与分享，短于全局岗位治理与海量枚举。旁支地位不影响其在协作场景中的重要性。</p>
+<h3>自测</h3>
+<ol>
+<li>为什么「给运营角色开订单导出」不该做成「每个订单一条 ACL」？  </li>
+<li>离职回收场景下，ACL 模型的痛点是什么？常用缓解手段？  </li>
+<li>「RBAC + ACL」各管哪一层？</li>
+</ol>
+<p><strong>要点</strong>：1）功能级应用 RBAC；2）扫列表难 → 用组/中心身份生命周期；3）功能 vs 实例。  </p>
+<h2>11. 延伸阅读</h2>
+<ul>
+<li>操作系统教材：ACL 与 Capability 对照  </li>
+<li>网盘/文档产品的「分享与继承」设计（观察即学习）</li>
+</ul>
+<p>下一章：<a href="07-rebac.html">07-rebac.md</a></p>
+
+      </article>
+      <footer class="foot">
+        <p>源文件：<code>theory/models/06-acl.md</code> · 本页：<code>html/models/06-acl.html</code></p>
+      </footer>
+    </div>
+  </body>
+</html>

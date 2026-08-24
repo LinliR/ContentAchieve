@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>案例 L · 多租户文档协作「澄协」 · 角色管理理论</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="topnav">
+        <a class="home-link" href="../index.html">← 目录</a>
+        <div class="chapter-nav"><a class="nav-prev" href="m-tier-order-ops.html">← 上一章</a></div>
+      </nav>
+      <article class="article prose">
+        <h1>案例 L · 多租户文档协作「澄协」</h1>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>档位</td>
+<td><strong>L · 复杂协作 / 多租户平台</strong></td>
+</tr>
+<tr>
+<td>性质</td>
+<td>虚构教材范例</td>
+</tr>
+<tr>
+<td>对照</td>
+<td><a href="../06-outputs.html">06-outputs.md</a></td>
+</tr>
+<tr>
+<td>对比</td>
+<td>先读懂 <a href="m-tier-order-ops.html">m-tier-order-ops.md</a>，再看本档多了什么</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>0. 业务背景</h2>
+<p><strong>澄协（ChengCollab）</strong>：SaaS 文档协作。</p>
+<ul>
+<li><strong>多租户</strong>：租户间强隔离（硬边界）  </li>
+<li>租户内：团队、文件夹、文档嵌套；<strong>成员关系</strong>决定默认可读/可编  </li>
+<li>全局功能：租户管理员可管成员与计费页；普通成员按关系访问文档  </li>
+<li>另有：外部分享链接（可选）、工作时间外禁止导出（属性条件）  </li>
+<li>计量：单租户导出次数日限额（触及 UCON <strong>思维</strong>，首期用配额计数近似，不上完整 UCON 平台）</li>
+</ul>
+<p><strong>决策树：</strong> Q1 岗位+大量关系分享 → RBAC + ReBAC；Q2 租户+时间等属性 → ABAC 规则；Q3 配额近似 ongoing；Q4 操作级+实例关系 → <strong>档位 L</strong>。</p>
+<hr>
+<h2>O1 · 问题框架</h2>
+<ul>
+<li>Subject：租户内用户；租户管理员；平台超级管理员（极少）；服务账号（Webhook）  </li>
+<li>Object：<strong>功能</strong>（计费、成员管理）+ <strong>实例</strong>（folder/doc）  </li>
+<li>Action：view / edit / share / export / admin_billing / admin_member  </li>
+<li>Context：tenant_id（硬边界）、时间（导出）、配额剩余  </li>
+<li>功能权限：要（平台/租户管理类）  </li>
+<li>数据权限：要 = <strong>租户隔离</strong> + <strong>关系推导可见性</strong> + 少量属性条件</li>
+</ul>
+<h2>O2 · 模型选型</h2>
+<ul>
+<li>主模型：RBAC（管租户级/平台级功能）  </li>
+<li>旁支/组合：  <ul>
+<li><strong>租户硬隔离</strong>（先于一切）  </li>
+<li><strong>ReBAC</strong>（团队成员、文件夹父子 → 文档权限）  </li>
+<li><strong>ABAC 规则</strong>（如 <code>action==export AND is_workday</code>）  </li>
+<li>配额：可变计数（UCON 思维局部）</li>
+</ul>
+</li>
+<li>档位：L  </li>
+<li>决策句式：</li>
+</ul>
+<blockquote>
+<p>本项目以 <strong>RBAC</strong> 管理租户/平台功能权限；因多租户强隔离与深层文档成员关系，补充 <strong>租户边界 + ReBAC</strong>；因导出受工作日与配额约束，补充 <strong>属性规则与配额计数（轻量 UCON 思维）</strong>；功能粒度 <strong>操作级</strong>；文档可见性以 <strong>关系推导</strong> 为主。首期不做 <strong>全站 MAC、完整 UCON 中间件、字段级</strong>。对照演进线：超出纯 RBAC，进入 ABAC/ReBAC 能力区，局部触及 UCON。  </p>
+</blockquote>
+<h2>O3 · 关键考量结论（摘录）</h2>
+<table>
+<thead>
+<tr>
+<th>编号</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A1</td>
+<td>租户内岗位偏少（admin/member），复杂在关系不在角色数量</td>
+</tr>
+<tr>
+<td>A3</td>
+<td>多租户硬隔离；跨租户默认不可能</td>
+</tr>
+<tr>
+<td>B2</td>
+<td>租户边界 + 关系可见性 + 导出条件</td>
+</tr>
+<tr>
+<td>B4</td>
+<td>核心是关系分享/继承，故 ReBAC 优先于大面积 ACL</td>
+</tr>
+<tr>
+<td>C1–C2</td>
+<td>RBAC + ReBAC + 属性规则</td>
+</tr>
+<tr>
+<td>C3</td>
+<td>配额用计数近似；真正 ongoing 播放类不做</td>
+</tr>
+<tr>
+<td>D5</td>
+<td>拒绝原因：至少能区分「无功能权 / 非本租户 / 无关系 / 非工作日 / 配额用尽」</td>
+</tr>
+<tr>
+<td>F</td>
+<td>见 O7</td>
+</tr>
+</tbody></table>
+<h2>O4 · 权限对象清单（逻辑·摘录）</h2>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th>操作</th>
+<th>权限码</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>billing</td>
+<td>查看/管理</td>
+<td>tenant:billing</td>
+<td>仅 tenant_admin</td>
+</tr>
+<tr>
+<td>member</td>
+<td>管理</td>
+<td>tenant:member_admin</td>
+<td></td>
+</tr>
+<tr>
+<td>doc</td>
+<td>查看/编辑/分享/导出</td>
+<td>由 ReBAC 关系蕴含；export 另加属性条件</td>
+<td>不把每篇文档做成角色</td>
+</tr>
+<tr>
+<td>platform</td>
+<td>超级管理</td>
+<td>platform:super</td>
+<td>平台方</td>
+</tr>
+</tbody></table>
+<h2>O5 · 角色初稿（功能层）</h2>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>职责</th>
+<th>权限包</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>tenant_admin</td>
+<td>租户管理</td>
+<td>tenant:*</td>
+<td>不自动拥有所有文档 edit（仍看关系或显式拥有）</td>
+</tr>
+<tr>
+<td>tenant_member</td>
+<td>普通成员</td>
+<td>（功能上可进应用）</td>
+<td>文档权几乎全由 ReBAC</td>
+</tr>
+<tr>
+<td>platform_super</td>
+<td>平台运维</td>
+<td>platform:super</td>
+<td>严格审计；默认不进租户内容</td>
+</tr>
+</tbody></table>
+<p>文档上的 viewer/editor/owner 是<strong>关系名</strong>，不要做成全局 RBAC 角色爆炸。</p>
+<h2>O6 · 数据范围 / 可见性规则</h2>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>规则</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>L0 租户</td>
+<td><code>resource.tenant_id == subject.tenant_id</code>；失败则拒绝（对平台超管另策）</td>
+</tr>
+<tr>
+<td>L1 关系</td>
+<td>ReBAC：member/owner/parent 等配置推导 view/edit</td>
+</tr>
+<tr>
+<td>L2 属性</td>
+<td>export 额外：<code>is_workday AND quota.remaining &gt; 0</code></td>
+</tr>
+<tr>
+<td>组合</td>
+<td>L0 ∧ (L1 关系成立) ∧ (若 export 则 L2)</td>
+</tr>
+</tbody></table>
+<p><strong>歧义消除：</strong> 文件夹 viewer 是否继承到子文档 → <strong>是</strong>（写入 ReBAC 配置，O9 变更需评审）。</p>
+<h2>O7 · 首期做 / 不做</h2>
+<ul>
+<li>做：租户隔离；RBAC 功能角色；ReBAC 文档授权；导出工作日+配额；拒绝原因分类；关系变更审计  </li>
+<li>不做：字段级；完整 UCON 平台；密级 MAC；跨租户协作；把文档权做成全局角色表</li>
+</ul>
+<h2>O8 · 风险与开放问题</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>影响</th>
+<th>计划何时定</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>外部分享链接主体如何建模</td>
+<td>匿名 Subject</td>
+<td>分享功能立项时</td>
+</tr>
+<tr>
+<td>关系配置复杂度导致误授权</td>
+<td>安全事故</td>
+<td>上线前做关系规则测试集</td>
+</tr>
+<tr>
+<td>配额是否要 ongoing 中断已开始的导出流</td>
+<td>体验/安全</td>
+<td>二期</td>
+</tr>
+</tbody></table>
+<h2>O9 · 演进预留</h2>
+<ul>
+<li>关系规则持续膨胀、难解释 → 加强测试与「证明路径」展示，仍先不换模型  </li>
+<li>出现法定密级 → 评估局部 MAC  </li>
+<li>出现长连接内容流强制中途停权 → 评估 UCON ongoing 机制  </li>
+<li>出现跨租户联邦 → 单独架构项，不在首期权限模型内偷偷加</li>
+</ul>
+<h2>与 M 档差异（帮助理解）</h2>
+<table>
+<thead>
+<tr>
+<th>点</th>
+<th>M 澄单</th>
+<th>L 澄协</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>隔离</td>
+<td>单租户部门</td>
+<td>多租户硬边界</td>
+</tr>
+<tr>
+<td>实例权</td>
+<td>少量 ticket ACL</td>
+<td>系统性 ReBAC</td>
+</tr>
+<tr>
+<td>属性</td>
+<td>部门范围为主</td>
+<td>时间+配额等更多条件</td>
+</tr>
+<tr>
+<td>治理</td>
+<td>中</td>
+<td>必须可解释与策略/关系测试</td>
+</tr>
+</tbody></table>
+<h2>验收</h2>
+<p>O1–O7 完整；O6 分层清晰；句式可讲解；治理要求写明 → <strong>理论阶段可通过（L），工程复杂度显著高于 M</strong>。</p>
+
+      </article>
+      <footer class="foot">
+        <p>源文件：<code>theory/cases/l-tier-multitenant-collab.md</code> · 本页：<code>html/cases/l-tier-multitenant-collab.html</code></p>
+      </footer>
+    </div>
+  </body>
+</html>

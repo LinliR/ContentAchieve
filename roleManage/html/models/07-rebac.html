@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>07 · 基于关系的访问控制（Relationship-Based Access Control / ReBAC）〔旁支〕 · 角色管理理论</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="topnav">
+        <a class="home-link" href="../index.html">← 目录</a>
+        <div class="chapter-nav"><a class="nav-prev" href="06-acl.html">← 上一章</a><a class="nav-next" href="08-comparison.html">下一章 →</a></div>
+      </nav>
+      <article class="article prose">
+        <h1>07 · 基于关系的访问控制（Relationship-Based Access Control / ReBAC）〔旁支〕</h1>
+<h2>1. 学习目标</h2>
+<p>读完本章，你应能：</p>
+<ul>
+<li>说明 ReBAC 的核心思想：用主体—资源关系图推导授权  </li>
+<li>举出「成员 / 拥有 / 父级」等关系如何传递权限  </li>
+<li>对比 ReBAC 与 ABAC、ACL 在建模偏好上的差别  </li>
+<li>识别协作、组织树、嵌套资源场景中的 ReBAC 信号</li>
+</ul>
+<h2>2. 历史背景与发展</h2>
+<p>当授权取决于「你和资源是什么关系」时，纯角色与纯属性枚举都会别扭，例如：</p>
+<ul>
+<li>项目成员可编辑项目下文档  </li>
+<li>文件夹读者可读其子文件  </li>
+<li>团队管理员可管理团队内所有资源</li>
+</ul>
+<p>这类规则用关系图表达更自然：<strong>关系是一等公民，权限由关系路径推出</strong>。<br>学界用 ReBAC 概括这类模型；工业界则以 Google <strong>Zanzibar</strong> 等系统让「关系元组 + 命名空间配置」进入大规模生产。</p>
+<p>ReBAC 与 ABAC 时间线上接近，同属细粒度动态家族，但<strong>建模原语不同</strong>：一个偏关系图，一个偏属性与策略语言。</p>
+<h2>3. 核心理论</h2>
+<h3>3.1 基本定义</h3>
+<p><strong>ReBAC</strong>：访问是否允许，取决于主体与客体（及中间对象）之间是否存在策略所认可的<strong>关系路径</strong>。</p>
+<h3>3.2 核心概念</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>关系元组</td>
+<td>如 <code>(文档42, parent, 文件夹7)</code>、<code>(文件夹7, viewer, 用户U)</code></td>
+</tr>
+<tr>
+<td>关系类型</td>
+<td>owner / editor / viewer / member / parent …</td>
+</tr>
+<tr>
+<td>可达 / 推导</td>
+<td>由配置的重写规则沿图搜索是否成立</td>
+</tr>
+<tr>
+<td>命名空间配置</td>
+<td>定义某种对象上「何关系蕴含何关系/何权限」</td>
+</tr>
+</tbody></table>
+<p>直觉图：</p>
+<pre><code>用户U --member--&gt; 项目P --parent-- 文档D
+配置：项目 member 可 view 其子文档
+⇒ U 可 view D
+</code></pre>
+<h3>3.3 判定如何发生</h3>
+<ol>
+<li>将请求表达为：Subject 是否对 Object 具有关系 R（如 <code>viewer</code>）  </li>
+<li>在关系图上按配置做可达性检查（可能含间接关系）  </li>
+<li>成立则允许</li>
+</ol>
+<h3>3.4 最小例子</h3>
+<ul>
+<li><code>team:设计组#member@user:张三</code>  </li>
+<li><code>doc:海报#parent@folder:品牌</code>  </li>
+<li><code>folder:品牌#editor@team:设计组</code>  </li>
+<li>配置：folder editor 对其子 doc 拥有 editor<br>⇒ 张三可编辑「海报」</li>
+</ul>
+<h2>4. 变体与扩展</h2>
+<ul>
+<li><strong>Zanzibar 风格</strong>：关系元组存储 + 一致性与扩展性工程  </li>
+<li><strong>与 RBAC 结合</strong>：角色仍管全局功能；资源内授权走关系  </li>
+<li><strong>与 ABAC 结合</strong>：关系成立后再加环境属性条件  </li>
+<li><strong>深度/循环控制</strong>：图搜索必须有界，防性能与死循环</li>
+</ul>
+<h2>5. 优势</h2>
+<ul>
+<li><strong>贴合协作语义</strong>：成员、拥有、父子天然对应产品语言  </li>
+<li><strong>继承与嵌套优雅</strong>：减少为每个子对象复制 ACL  </li>
+<li><strong>变更局部性好</strong>：改一个「成员关系」，影响其可达资源</li>
+</ul>
+<h2>6. 不足与局限</h2>
+<ol>
+<li><strong>心智与配置复杂</strong>：关系重写规则难写难测  </li>
+<li><strong>调试困难</strong>：「为何能访问」需解释路径  </li>
+<li><strong>运维成本</strong>：图数据一致性、缓存、延迟删除  </li>
+<li><strong>不等于万能</strong>：纯岗位功能权限用 RBAC 更简单  </li>
+<li><strong>与组织权限治理流程</strong>对接时，仍需角色/审批等上层概念</li>
+</ol>
+<h2>7. 在演进链中的位置</h2>
+<ul>
+<li><strong>旁支</strong>：不在 DAC→…→UCON 主轴替换位置上  </li>
+<li><strong>与 ACL</strong>：ACL 枚举「谁」；ReBAC 枚举「关系」并由规则推导「谁」  </li>
+<li><strong>与 ABAC</strong>：关系可看成一种结构化属性；但图可达与扁平属性策略仍是不同工具</li>
+</ul>
+<h2>8. 适用与不适用</h2>
+<table>
+<thead>
+<tr>
+<th>更适用</th>
+<th>更不适用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>文档库、项目协作、组织树资源</td>
+<td>仅几种全局角色的管理后台</td>
+</tr>
+<tr>
+<td>深层嵌套与分享继承</td>
+<td>团队无关系建模与观测能力</td>
+</tr>
+<tr>
+<td>大规模「谁因何关系可见」</td>
+<td>把所有 API 功能权都塞进关系图</td>
+</tr>
+</tbody></table>
+<h2>9. 概念辨析</h2>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>辨析</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ReBAC vs ACL</td>
+<td>推导 vs 枚举；ReBAC 常能生成等价于大量 ACL 的效果</td>
+</tr>
+<tr>
+<td>ReBAC vs 部门数据范围</td>
+<td>「本部门」可用属性；「项目成员」更像关系——看领域语义选型</td>
+</tr>
+<tr>
+<td>Zanzibar vs ReBAC</td>
+<td>前者是后者思想的著名工业实现与论文体系</td>
+</tr>
+</tbody></table>
+<h2>10. 小结与自测</h2>
+<h3>小结</h3>
+<p>ReBAC 用关系图回答「你和资源的关系是否蕴含该操作」，特别适合协作与嵌套资源。它是细粒度旁支冠军候选，但配置与解释成本要求团队具备相应成熟度。</p>
+<h3>自测</h3>
+<ol>
+<li>把「项目成员可读项目下所有文档」分别用 ACL、ABAC、ReBAC 各用一句话建模，哪种最省事？  </li>
+<li>为什么调试 ReBAC 往往需要「展示证明路径」？  </li>
+<li>何种信号出现时，应从「RBAC + 部门属性」升级评估 ReBAC？</li>
+</ol>
+<p><strong>要点</strong>：1）ReBAC 最贴；2）授权由路径推出；3）大量嵌套分享/成员继承/对象图复杂。  </p>
+<h2>11. 延伸阅读</h2>
+<ul>
+<li>Google Zanzibar 论文：工业级关系授权系统  </li>
+<li>ReBAC 综述/教材章节：关系作为授权原语</li>
+</ul>
+<p>综合收束：<a href="08-comparison.html">08-comparison.md</a></p>
+
+      </article>
+      <footer class="foot">
+        <p>源文件：<code>theory/models/07-rebac.md</code> · 本页：<code>html/models/07-rebac.html</code></p>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>04 · 角色管理考量：立项前必须想清楚的事 · 角色管理理论</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="topnav">
+        <a class="home-link" href="index.html">← 目录</a>
+        <div class="chapter-nav"><a class="nav-prev" href="models/08-comparison.html">← 上一章</a><a class="nav-next" href="05-decision-framework.html">下一章 →</a></div>
+      </nav>
+      <article class="article prose">
+        <h1>04 · 角色管理考量：立项前必须想清楚的事</h1>
+<blockquote>
+<p>前置：<a href="01-problem-framework.html">01</a>、<a href="02-model-evolution.html">02</a>、建议已读完 <a href="models/08-comparison.html">models/08-comparison.md</a>。<br>本章产出进入 <a href="06-outputs.html">06-outputs.md</a> 的 O3 / O7。</p>
+</blockquote>
+<h2>1. 学习目标</h2>
+<p>读完本章，你应能：</p>
+<ol>
+<li>按 A–G 分组，对一个新项目逐项写出<strong>结论</strong>（不是只勾问题）  </li>
+<li>解释每组考量如何影响模型组合与粒度  </li>
+<li>识别至少六种理论层反模式  </li>
+<li>把「不做项」写成与「做」同等重要的输出</li>
+</ol>
+<h2>2. 为什么需要考量清单</h2>
+<p>模型教会你「有哪些工具」；考量清单逼你问「<strong>这个项目的约束是什么</strong>」。</p>
+<p>没有清单的典型失败：</p>
+<ul>
+<li>先建 <code>user_role</code> 表，再发现要多租户  </li>
+<li>角色建了 80 个，才发现是在用角色表达部门  </li>
+<li>上线前才说「工单要分享」，ACL 被迫打补丁</li>
+</ul>
+<p><strong>用法：</strong> 逐项讨论 → 把结论记入 O3 → 冲突项升为 O8 开放问题。</p>
+<h2>3. 分组精讲</h2>
+<h3>A. 业务与组织</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>考量点</th>
+<th>要得出的结论</th>
+<th>为何重要</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A1</td>
+<td>岗位是否清晰</td>
+<td>能否用有限角色覆盖主路径</td>
+<td>不清晰则 RBAC 角色会假稳、真乱</td>
+</tr>
+<tr>
+<td>A2</td>
+<td>岗位变化频率</td>
+<td>变更频率；是否要角色继承</td>
+<td>高频变化要简化角色、加强流程</td>
+</tr>
+<tr>
+<td>A3</td>
+<td>多组织 / 多租户</td>
+<td>租户是硬边界还是属性；隔离强度</td>
+<td>决定 TENANT 范围与是否 L 档</td>
+</tr>
+<tr>
+<td>A4</td>
+<td>互斥职责</td>
+<td>是否要 SoD（如制单 vs 审核）</td>
+<td>约束写进角色设计，而非靠自觉</td>
+</tr>
+<tr>
+<td>A5</td>
+<td>外包 / 临时 / 服务账号</td>
+<td>Subject 类型列表</td>
+<td>漏掉服务账号会在集成时开上帝权限</td>
+</tr>
+</tbody></table>
+<p><strong>理解要点：</strong> 组织不清楚时，先做组织访谈，不要先画权限表。</p>
+<h3>B. 权限范围与粒度</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>考量点</th>
+<th>要得出的结论</th>
+<th>为何重要</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>B1</td>
+<td>功能权限边界</td>
+<td>模块 / 菜单 / <strong>操作</strong> 哪一级</td>
+<td>默认操作级（见 01）</td>
+</tr>
+<tr>
+<td>B2</td>
+<td>是否要数据权限</td>
+<td>SELF/DEPT/…/ALL 哪些</td>
+<td>有则必须写 O6 语义</td>
+</tr>
+<tr>
+<td>B3</td>
+<td>字段级</td>
+<td>做 / <strong>不做</strong></td>
+<td>不做也要白纸黑字</td>
+</tr>
+<tr>
+<td>B4</td>
+<td>对象级分享</td>
+<td>有无；哪些资源类型</td>
+<td>有 → ACL/ReBAC 信号</td>
+</tr>
+<tr>
+<td>B5</td>
+<td>权限码命名</td>
+<td>如 <code>资源:操作</code>，全系统统一</td>
+<td>鉴权真源；避免菜单 ID 当权限</td>
+</tr>
+</tbody></table>
+<p><strong>原则（背诵）：</strong> 角色打包<strong>功能权限</strong>；部门/租户描述<strong>数据范围</strong>；勿把部门直接当角色。</p>
+<h3>C. 模型与组合</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>考量点</th>
+<th>要得出的结论</th>
+<th>为何重要</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>C1</td>
+<td>主模型</td>
+<td>通常 RBAC</td>
+<td>决策句式主语</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>旁支</td>
+<td>属性规则 / ACL / ReBAC / 无</td>
+<td>防止漏场景或过度设计</td>
+</tr>
+<tr>
+<td>C3</td>
+<td>是否触及 UCON</td>
+<td>吊销、义务、计量、ongoing</td>
+<td>多数项目仅检查清单</td>
+</tr>
+<tr>
+<td>C4</td>
+<td>静态 vs 动态占比</td>
+<td>能静态则优先静态</td>
+<td>治理成本与可解释性</td>
+</tr>
+</tbody></table>
+<p>对照演进与决策：<a href="02-model-evolution.html">02</a>、<a href="05-decision-framework.html">05</a>。</p>
+<h3>D. 生命周期与治理</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>考量点</th>
+<th>要得出的结论</th>
+<th>为何重要</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>D1</td>
+<td>角色谁创建/审批</td>
+<td>人与流程</td>
+<td>防「业务随便加超级角色」</td>
+</tr>
+<tr>
+<td>D2</td>
+<td>用户如何绑角色</td>
+<td>自助 / 申请 / 管理员</td>
+<td>影响审计与安全</td>
+</tr>
+<tr>
+<td>D3</td>
+<td>变更如何生效</td>
+<td>立即 / 重登录 / Token 刷新</td>
+<td>必须与业务预期一致</td>
+</tr>
+<tr>
+<td>D4</td>
+<td>离职/调岗回收</td>
+<td>自动解绑、审计</td>
+<td>权限残留是高频事故</td>
+</tr>
+<tr>
+<td>D5</td>
+<td>拒绝是否可解释</td>
+<td>要/不要到什么程度</td>
+<td>影响能否上复杂 ABAC</td>
+</tr>
+</tbody></table>
+<h3>E. 安全与合规</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>考量点</th>
+<th>要得出的结论</th>
+<th>为何重要</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>E1</td>
+<td>最小权限如何落地</td>
+<td>默认拒绝 + 显式授权</td>
+<td>底线</td>
+</tr>
+<tr>
+<td>E2</td>
+<td>操作审计</td>
+<td>哪些操作必记</td>
+<td>导出/作废/分享/改角色常入选</td>
+</tr>
+<tr>
+<td>E3</td>
+<td>二次确认 / 双人复核</td>
+<td>哪些敏感操作</td>
+<td>与角色约束配合</td>
+</tr>
+<tr>
+<td>E4</td>
+<td>等保/密级</td>
+<td>是否引入 MAC 思想</td>
+<td>有则局部强制，无则不要假装</td>
+</tr>
+</tbody></table>
+<h3>F. 「首期不做」（防蔓延）</h3>
+<p>「不做」与「做」同级，写入 O7。建议起步勾选：</p>
+<ul>
+<li><input disabled="" type="checkbox"> 字段级权限  </li>
+<li><input disabled="" type="checkbox"> 非白名单资源的对象级 ACL  </li>
+<li><input disabled="" type="checkbox"> 完整 ABAC 策略引擎  </li>
+<li><input disabled="" type="checkbox"> UCON ongoing / 计量平台  </li>
+<li><input disabled="" type="checkbox"> 全站 MAC  </li>
+<li><input disabled="" type="checkbox"> 其他：________</li>
+</ul>
+<p><strong>理解要点：</strong> 不做项是范围控制工具，不是偷懒；O9 写清「什么信号才允许推翻不做项」。</p>
+<h3>G. 反模式（理论层）</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>反模式</th>
+<th>后果</th>
+<th>纠正</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>一用户一专属角色</td>
+<td>RBAC 名存实亡</td>
+<td>合并职责为共享角色</td>
+</tr>
+<tr>
+<td>2</td>
+<td>部门 = 角色</td>
+<td>功能/数据搅死、角色爆炸</td>
+<td>部门→范围；角色→权限包</td>
+</tr>
+<tr>
+<td>3</td>
+<td>权限大量直绑用户</td>
+<td>无法治理</td>
+<td>走角色指派</td>
+</tr>
+<tr>
+<td>4</td>
+<td>为每条数据建角色</td>
+<td>运维崩溃</td>
+<td>范围规则或 ACL</td>
+</tr>
+<tr>
+<td>5</td>
+<td>无治理上完整 ABAC</td>
+<td>策略失控</td>
+<td>先 RBAC+有限规则</td>
+</tr>
+<tr>
+<td>6</td>
+<td>无过程需求却上 UCON</td>
+<td>过度设计</td>
+<td>UCON 作检查清单</td>
+</tr>
+<tr>
+<td>7</td>
+<td>菜单 ID 当权限码</td>
+<td>重构 UI 就鉴权崩</td>
+<td><code>资源:操作</code> 稳定符号</td>
+</tr>
+<tr>
+<td>8</td>
+<td>默认允许</td>
+<td>违背最小权限</td>
+<td>默认拒绝</td>
+</tr>
+</tbody></table>
+<h2>4. 如何开一场「考量会」（实践）</h2>
+<p>建议 60–90 分钟，参与：业务负责人、系统分析、开发代表。</p>
+<ol>
+<li>投影 A–E 表，逐项只允许输出<strong>结论句</strong>  </li>
+<li>争议项记入「开放问题」草稿（后入 O8）  </li>
+<li>会结束前填写 F 不做项（全体确认）  </li>
+<li>会后整理进 O3，不当场选框架</li>
+</ol>
+<h2>5. 与交付物的映射</h2>
+<table>
+<thead>
+<tr>
+<th>考量组</th>
+<th>主要进入</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A–E 结论</td>
+<td>O3</td>
+</tr>
+<tr>
+<td>F</td>
+<td>O7</td>
+</tr>
+<tr>
+<td>争议</td>
+<td>O8</td>
+</tr>
+<tr>
+<td>C 的模型倾向</td>
+<td>O2（最终句式在 05 定稿）</td>
+</tr>
+</tbody></table>
+<h2>6. 小结与自测</h2>
+<h3>小结</h3>
+<p>考量清单把「模型知识」变成「项目约束」。<br>逐项要结论；不做项要白纸黑字；反模式用于评审拍砖。</p>
+<h3>自测</h3>
+<ol>
+<li>为什么 A3（租户）答「有」时，不能只加一个角色叫「租户管理员」了事？  </li>
+<li>B4 出现「工单可分享给个人」时，C2 应倾向什么？为何不是新建角色？  </li>
+<li>举一个「不做项」在三个月后被错误推翻的故事，并说明 O9 本该怎么写。  </li>
+<li>用 G 中两条反模式，检查你上一个系统（或澄单案例）。</li>
+</ol>
+<h2>7. 案例回填区（真实项目）</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>项目</th>
+<th>主模型组合</th>
+<th>关键考量结论</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>教材范例见 <a href="cases/index.html">cases/</a>。</p>
+<p>下一章：<a href="05-decision-framework.html">05-decision-framework.md</a></p>
+
+      </article>
+      <footer class="foot">
+        <p>源文件：<code>theory/04-considerations.md</code> · 本页：<code>html/04-considerations.html</code></p>
+      </footer>
+    </div>
+  </body>
+</html>

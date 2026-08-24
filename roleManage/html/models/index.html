@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>权限模型教材 · 目录 · 角色管理理论</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="topnav">
+        <a class="home-link" href="../index.html">← 目录</a>
+        
+      </nav>
+      <article class="article prose">
+        <h1>权限模型教材 · 目录</h1>
+<p>本目录由原 <code>03-models.md</code> 扩展而来，按<strong>教材体例</strong>逐模型展开：历史与发展、核心理论、判定机制、变体、优势、不足、与前后代关系、适用边界、概念辨析与自测。</p>
+<blockquote>
+<p>选型速查仍可从 <a href="../03-models.html">../03-models.md</a> 进入；需要「讲清楚、练得会」时读本目录专章。</p>
+</blockquote>
+<h2>阅读路线</h2>
+<h3>主线（按演进顺序，建议全部精读）</h3>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>文档</th>
+<th>核心问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td><a href="00-overview.html">00-overview.md</a></td>
+<td>模型地图、主线与旁支、如何学</td>
+</tr>
+<tr>
+<td>1</td>
+<td><a href="01-dac.html">01-dac.md</a></td>
+<td>自主授权：灵活从何而来、风险从何而来</td>
+</tr>
+<tr>
+<td>2</td>
+<td><a href="02-mac.html">02-mac.md</a></td>
+<td>强制策略：为何“安全”却难用于业务</td>
+</tr>
+<tr>
+<td>3</td>
+<td><a href="03-rbac.html">03-rbac.md</a></td>
+<td>角色：企业管理场景的理论根</td>
+</tr>
+<tr>
+<td>4</td>
+<td><a href="04-abac.html">04-abac.md</a></td>
+<td>属性与策略：动态细粒度的代价</td>
+</tr>
+<tr>
+<td>5</td>
+<td><a href="05-ucon.html">05-ucon.md</a></td>
+<td>使用控制：从“进门”到“用的全过程”</td>
+</tr>
+</tbody></table>
+<h3>旁支（主线读完后补，项目中极常见）</h3>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>文档</th>
+<th>核心问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>6</td>
+<td><a href="06-acl.html">06-acl.md</a></td>
+<td>资源侧名单与 DAC/RBAC 的关系</td>
+</tr>
+<tr>
+<td>7</td>
+<td><a href="07-rebac.html">07-rebac.md</a></td>
+<td>关系即授权（协作/组织树）</td>
+</tr>
+</tbody></table>
+<h3>综合</h3>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>文档</th>
+<th>核心问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>8</td>
+<td><a href="08-comparison.html">08-comparison.md</a></td>
+<td>对照、组合、选型误区</td>
+</tr>
+<tr>
+<td>—</td>
+<td><a href="_chapter-template.html">_chapter-template.md</a></td>
+<td>专章统一体例（维护用）</td>
+</tr>
+</tbody></table>
+<h2>每章固定结构（教材约定）</h2>
+<ol>
+<li>学习目标  </li>
+<li>历史背景与发展  </li>
+<li>核心理论（概念与判定）  </li>
+<li>变体与扩展  </li>
+<li>优势  </li>
+<li>不足与局限  </li>
+<li>在演进链中的位置  </li>
+<li>适用 / 不适用  </li>
+<li>概念辨析  </li>
+<li>小结与自测  </li>
+<li>延伸阅读（经典文献/标准，点到为止）</li>
+</ol>
+<h2>与 theory 其他文档的关系</h2>
+<p>完整学法见 <a href="../CURRICULUM.html">../CURRICULUM.md</a>。</p>
+<pre><code>01 问题框架  → 先统一词汇
+02 演进逻辑  → 看清“为什么会出现下一代”
+models/*     → 把每个模型讲透（本目录）
+04 考量清单  → 项目启动检查
+05 决策框架  → 怎么选
+06 输出模板  → 理论交付物
+cases/*      → 填好的立项范例
+</code></pre>
+<h2>教材级建设意见（本仓库建议采纳）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>意见</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>统一体例：专章同一模板</td>
+<td>已采用</td>
+</tr>
+<tr>
+<td>2</td>
+<td>主线 + 旁支分离</td>
+<td>已采用</td>
+</tr>
+<tr>
+<td>3</td>
+<td>每章必有「不足」</td>
+<td>已采用</td>
+</tr>
+<tr>
+<td>4</td>
+<td>自测题强迫输出</td>
+<td>已采用</td>
+</tr>
+<tr>
+<td>5</td>
+<td>对照章收束（08）</td>
+<td>已采用</td>
+</tr>
+<tr>
+<td>6</td>
+<td>术语表</td>
+<td>已完成 → <a href="../glossary.html">../glossary.md</a></td>
+</tr>
+<tr>
+<td>7</td>
+<td>立项案例 cases/</td>
+<td>M 档已完成 → <a href="../cases/index.html">../cases/</a>；S/L 待建</td>
+</tr>
+<tr>
+<td>8</td>
+<td>figures/ 示意图</td>
+<td>待建</td>
+</tr>
+<tr>
+<td>9</td>
+<td>文献只作锚点</td>
+<td>已采用</td>
+</tr>
+<tr>
+<td>10</td>
+<td>理论与工程分册</td>
+<td>已采用</td>
+</tr>
+</tbody></table>
+<p>维护模型定义时：先改对应专章，再同步 <a href="00-overview.html">00-overview.md</a> 与 <a href="../03-models.html">../03-models.md</a>。</p>
+
+      </article>
+      <footer class="foot">
+        <p>源文件：<code>theory/models/README.md</code> · 本页：<code>html/models/index.html</code></p>
+      </footer>
+    </div>
+  </body>
+</html>

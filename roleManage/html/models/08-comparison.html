@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>08 · 对照、组合与选型误区 · 角色管理理论</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="topnav">
+        <a class="home-link" href="../index.html">← 目录</a>
+        <div class="chapter-nav"><a class="nav-prev" href="07-rebac.html">← 上一章</a><a class="nav-next" href="../04-considerations.html">下一章 →</a></div>
+      </nav>
+      <article class="article prose">
+        <h1>08 · 对照、组合与选型误区</h1>
+<h2>1. 学习目标</h2>
+<ul>
+<li>能默写各模型「判定看什么」对照表  </li>
+<li>能描述业务系统最常见的模型组合及其分工  </li>
+<li>能识别至少五类选型误区  </li>
+<li>能写出一段符合教材标准的「模型选型结论」</li>
+</ul>
+<h2>2. 总对照表</h2>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>判定主要看什么</th>
+<th>一句话</th>
+<th>主线/旁支</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DAC</td>
+<td>所有者如何授权</td>
+<td>主人说了算</td>
+<td>主线</td>
+</tr>
+<tr>
+<td>MAC</td>
+<td>安全标签与强制策略</td>
+<td>系统强制</td>
+<td>主线</td>
+</tr>
+<tr>
+<td>RBAC</td>
+<td>角色是否蕴含权限</td>
+<td>你是什么角色</td>
+<td>主线</td>
+</tr>
+<tr>
+<td>ABAC</td>
+<td>属性是否满足策略</td>
+<td>条件满不满足</td>
+<td>主线</td>
+</tr>
+<tr>
+<td>UCON</td>
+<td>授权+义务+条件（可持续/可变）</td>
+<td>用的全过程</td>
+<td>主线</td>
+</tr>
+<tr>
+<td>ACL</td>
+<td>客体上的名单</td>
+<td>这东西允许谁</td>
+<td>旁支</td>
+</tr>
+<tr>
+<td>ReBAC</td>
+<td>关系路径是否成立</td>
+<td>你和它什么关系</td>
+<td>旁支</td>
+</tr>
+</tbody></table>
+<h2>3. 演进链上的「缺口传递」（复习）</h2>
+<pre><code>DAC 灵活 → 缺口：扩散与弱全局策略
+MAC 强制 → 缺口：过刚、不贴岗位
+RBAC 岗位化 → 缺口：静态、难上下文、难实例分享
+ABAC 动态细粒度 → 缺口：治理难；仍常偏请求时
+UCON 使用全过程 → 缺口：完整落地重；概念易滥用
+</code></pre>
+<p>旁支补的是横切能力：</p>
+<ul>
+<li><strong>ACL</strong>：实例枚举  </li>
+<li><strong>ReBAC</strong>：关系推导</li>
+</ul>
+<h2>4. 推荐组合（理论稳态）</h2>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>常见模型选择</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>功能权限（菜单/API/操作）</td>
+<td><strong>RBAC</strong></td>
+</tr>
+<tr>
+<td>数据范围（本人/部门/租户）</td>
+<td><strong>轻量属性规则（ABAC 思想）</strong></td>
+</tr>
+<tr>
+<td>对象分享 / 协作</td>
+<td><strong>ACL</strong> 或 <strong>ReBAC</strong></td>
+</tr>
+<tr>
+<td>密级/强隔离红线</td>
+<td>局部 <strong>MAC</strong> 思想</td>
+</tr>
+<tr>
+<td>使用中吊销/义务/计量</td>
+<td>局部 <strong>UCON</strong> 思想</td>
+</tr>
+</tbody></table>
+<p>口诀：</p>
+<blockquote>
+<p><strong>RBAC 打底，属性管范围，分享看 ACL/ReBAC，强制与持续按需加。</strong></p>
+</blockquote>
+<h2>5. 选型误区（教材必记）</h2>
+<ol>
+<li><strong>把演进线当实施顺序</strong>：新项目从 UCON「最新」开始 → 错  </li>
+<li><strong>用角色表达数据范围</strong>：<code>运营_华东_本人</code> 角色爆炸 → 错  </li>
+<li><strong>用 ACL 表达全站功能权</strong> → 错  </li>
+<li><strong>无策略治理上完整 ABAC</strong> → 错  </li>
+<li><strong>把多租户过滤当成已经做了 MAC</strong> → 概念不清  </li>
+<li><strong>部门树直接当角色树</strong> → 功能/数据搅死  </li>
+<li><strong>一个用户一个专属角色</strong> → RBAC 名存实亡  </li>
+<li><strong>用 UCON 名词包装普通登录鉴权</strong> → 沟通通胀</li>
+</ol>
+<h2>6. 概念速辨（期末级）</h2>
+<table>
+<thead>
+<tr>
+<th>易混对</th>
+<th>一句话分开</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DAC vs ACL</td>
+<td>策略类别 vs 常见实现结构</td>
+</tr>
+<tr>
+<td>角色 vs 部门</td>
+<td>权限包 vs 组织归属/数据范围来源</td>
+</tr>
+<tr>
+<td>ABAC vs 代码 if</td>
+<td>可治理策略 vs 散落分支</td>
+</tr>
+<tr>
+<td>ACL vs ReBAC</td>
+<td>枚举谁 vs 推导谁</td>
+</tr>
+<tr>
+<td>ABAC vs UCON</td>
+<td>属性策略 vs 使用全过程（含义务/持续/可变）</td>
+</tr>
+</tbody></table>
+<h2>7. 书面表达模板（可直接用于方案）</h2>
+<blockquote>
+<p>本项目以 <strong>RBAC</strong> 为功能权限主模型；<br>数据范围采用 <strong>本人/本部门/租户</strong> 属性规则（轻量 ABAC）；<br>文档类资源的分享采用 <strong>ACL</strong>（或 ReBAC，若存在深层嵌套成员继承）；<br>不引入全站 MAC；UCON 仅作为检查项：<strong>无</strong>会话中吊销/计量/强制义务需求。<br>对照演进线：需求主要落在 RBAC 阶段，局部触及 ABAC 思想与 ACL 旁支。  </p>
+</blockquote>
+<p>按项目实情替换下划线内容即可。更完整交付物见 <a href="../06-outputs.html">../06-outputs.md</a>。</p>
+<h2>8. 综合自测</h2>
+<ol>
+<li>画出主线+旁支地图，并标注你司上一个系统大概落在哪。  </li>
+<li>给定需求：「运营可导出本部门订单；经理可看下级部门；单条订单可分享给协作人只读」。拆成模型分工。  </li>
+<li>说明为什么「最新模型」不是「更好模型」。</li>
+</ol>
+<p><strong>要点</strong>：2）导出/查看功能→RBAC；部门范围→属性规则；单条分享→ACL/ReBAC；3）匹配问题域与治理成本。  </p>
+<h2>9. 回到实践文档</h2>
+<ul>
+<li>考量清单：<a href="../04-considerations.html">../04-considerations.md</a>  </li>
+<li>决策树：<a href="../05-decision-framework.html">../05-decision-framework.md</a>  </li>
+<li>输出模板：<a href="../06-outputs.html">../06-outputs.md</a></li>
+</ul>
+<p>教材模型篇到此收束；建议隔日用一张白纸默写对照表与组合口诀。</p>
+
+      </article>
+      <footer class="foot">
+        <p>源文件：<code>theory/models/08-comparison.md</code> · 本页：<code>html/models/08-comparison.html</code></p>
+      </footer>
+    </div>
+  </body>
+</html>
