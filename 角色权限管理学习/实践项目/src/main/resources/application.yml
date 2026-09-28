@@ -1,0 +1,23 @@
+server:
+  address: 127.0.0.1
+  port: 8080
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        same-site: lax
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/permission-lab
+    username: sa
+    password: ""
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+lab:
+  seed: true
+  demo-password: ${LAB_DEMO_PASSWORD:Learn-RBAC-2026!}
